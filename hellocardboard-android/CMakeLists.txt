@@ -22,6 +22,8 @@ find_library(android-lib android)
 find_library(GLESv2-lib GLESv2)
 find_library(GLESv3-lib GLESv3)
 find_library(log-lib log)
+#find_library(media-lib mediandk)
+#find_library(camera-lib camera2ndk)
 
 set(libs_dir ${CMAKE_CURRENT_SOURCE_DIR}/libraries)
 
@@ -38,4 +40,8 @@ target_link_libraries(cardboard_jni
     ${GLESv2-lib}
     ${GLESv3-lib}
     ${log-lib}
+    #${media-lib}
+    #${camera-lib}
+    mediandk
+    camera2ndk
     ${libs_dir}/jni/${ANDROID_ABI}/libcardboard_api.so)

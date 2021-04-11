@@ -18,6 +18,7 @@
 #define HELLO_CARDBOARD_ANDROID_SRC_MAIN_JNI_HELLO_CARDBOARD_APP_H_
 
 #include <android/asset_manager.h>
+#include <camera/NdkCameraManager.h>
 #include <jni.h>
 
 #include <memory>
@@ -54,7 +55,7 @@ class HelloCardboardApp {
    *
    * @param env The JNI environment.
    */
-  void OnSurfaceCreated(JNIEnv* env);
+  void OnSurfaceCreated(JNIEnv* env, jint texture, jobject surface);
 
   /**
    * Sets screen parameters.
@@ -67,7 +68,7 @@ class HelloCardboardApp {
   /**
    * Draws the scene. This should be called on the rendering thread.
    */
-  void OnDrawFrame();
+  void OnDrawFrame(jfloatArray texMatrix);
 
   /**
    * Hides the target object if it's being targeted.
@@ -153,6 +154,8 @@ class HelloCardboardApp {
    */
   bool IsPointingAtTarget();
 
+  std::string getBackFacingCamId(ACameraManager *cameraManager);
+
   jobject java_asset_mgr_;
   AAssetManager* asset_mgr_;
 
@@ -193,6 +196,26 @@ class HelloCardboardApp {
   std::vector<Texture> target_object_not_selected_textures_;
   std::vector<Texture> target_object_selected_textures_;
   int cur_target_object_;
+
+  // CAMERA VARIABLES
+  ACameraManager *cameraManager;
+  std::string backFacingCameraId;
+
+  // Variables for OpenGL setup
+  GLuint prog;
+  GLuint vtxShader;
+  GLuint fragShader;
+  GLint vtxPosAttrib;
+  GLint uvsAttrib;
+  GLint mvpMatrix;
+  GLint texMatrix;
+  GLint texSampler;
+  GLint color;
+  GLint size;
+  GLuint buf[2];
+
+  // The id is generated in Kotlin and passed to C++
+  GLuint textureId;
 };
 
 }  // namespace ndk_hello_cardboard

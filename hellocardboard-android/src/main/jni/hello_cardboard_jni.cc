@@ -55,13 +55,13 @@ JNI_METHOD(void, nativeOnDestroy)
 (JNIEnv* env, jobject obj, jlong native_app) { delete native(native_app); }
 
 JNI_METHOD(void, nativeOnSurfaceCreated)
-(JNIEnv* env, jobject obj, jlong native_app) {
-  native(native_app)->OnSurfaceCreated(env);
+(JNIEnv* env, jobject obj, jlong native_app, jint texture, jobject surface) {
+  native(native_app)->OnSurfaceCreated(env, texture, surface);
 }
 
 JNI_METHOD(void, nativeOnDrawFrame)
-(JNIEnv* env, jobject obj, jlong native_app) {
-  native(native_app)->OnDrawFrame();
+(JNIEnv* env, jobject obj, jlong native_app, jfloatArray texMatrix) {
+  native(native_app)->OnDrawFrame(texMatrix);
 }
 
 JNI_METHOD(void, nativeOnTriggerEvent)

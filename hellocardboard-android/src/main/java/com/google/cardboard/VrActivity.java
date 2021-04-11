@@ -20,25 +20,32 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
+import android.graphics.SurfaceTexture;
 import android.net.Uri;
+import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.PopupMenu;
 import android.widget.Toast;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
+import static android.opengl.GLES11Ext.GL_TEXTURE_EXTERNAL_OES;
 
 /**
  * A Google Cardboard VR NDK sample application.
@@ -62,10 +69,23 @@ public class VrActivity extends AppCompatActivity implements PopupMenu.OnMenuIte
 
   private GLSurfaceView glView;
 
+  /** Handles the requests for activity permissions. */
+  private void requestPermissionsA() {
+    final String[] permissions =
+            VERSION.SDK_INT < VERSION_CODES.Q
+                    ? new String[] {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}
+                    : new String[] {Manifest.permission.CAMERA};
+    ActivityCompat.requestPermissions(this, permissions, PERMISSIONS_REQUEST_CODE);
+  }
+
   @SuppressLint("ClickableViewAccessibility")
   @Override
   public void onCreate(Bundle savedInstance) {
     super.onCreate(savedInstance);
+
+    if (checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+      requestPermissionsA();
+    }
 
     nativeApp = nativeOnCreate(getAssets());
 
@@ -87,6 +107,17 @@ public class VrActivity extends AppCompatActivity implements PopupMenu.OnMenuIte
           }
           return false;
         });
+
+    //CameraController controller = new LifecycleCameraController(this);
+    //((LifecycleCameraController) controller).bindToLifecycle(lifecycleOwner);
+    //PreviewView previewView = findViewById(R.id.preview_view);
+    //previewView.setController(controller);
+
+    // Use case features
+    //controller.takePicture(...);
+
+    // Camera control features
+    //controller.setZoomRatio(.5F);
 
     // TODO(b/139010241): Avoid that action and status bar are displayed when pressing settings
     // button.
@@ -148,9 +179,37 @@ public class VrActivity extends AppCompatActivity implements PopupMenu.OnMenuIte
   }
 
   private class Renderer implements GLSurfaceView.Renderer {
+    Object lock = new Object();
+    boolean frameAvailable = false;
+    float[] texMatrix = new float[16];
+    SurfaceTexture surfaceTexture = null;
+
     @Override
     public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
-      nativeOnSurfaceCreated(nativeApp);
+      // Prepare texture and surface
+      int[] textures = new int[1];
+      GLES20.glGenTextures(1, textures, 0);
+      GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, textures[0]);
+
+      surfaceTexture = new SurfaceTexture(textures[0]);
+      surfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
+        @Override
+        public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+          synchronized(lock) {
+            frameAvailable = true;
+          }
+        }
+      });
+
+      // Choose you preferred preview size here before creating surface
+      // val optimalSize = getOptimalSize()
+      // surfaceTexture.setDefaultBufferSize(optimalSize.width, optimalSize.height)
+
+      // FIXME: delete surface
+      Surface surface = new Surface(surfaceTexture);
+
+      // Pass to native code
+      nativeOnSurfaceCreated(nativeApp, textures[0], surface);
     }
 
     @Override
@@ -160,7 +219,15 @@ public class VrActivity extends AppCompatActivity implements PopupMenu.OnMenuIte
 
     @Override
     public void onDrawFrame(GL10 gl10) {
-      nativeOnDrawFrame(nativeApp);
+      synchronized(lock) {
+        if (frameAvailable) {
+          surfaceTexture.updateTexImage();
+          surfaceTexture.getTransformMatrix(texMatrix);
+          frameAvailable = false;
+        }
+      }
+
+      nativeOnDrawFrame(nativeApp, texMatrix);
     }
   }
 
@@ -212,7 +279,7 @@ public class VrActivity extends AppCompatActivity implements PopupMenu.OnMenuIte
    */
   @Override
   public void onRequestPermissionsResult(
-      int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+          int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     if (!isReadExternalStorageEnabled()) {
       Toast.makeText(this, R.string.read_storage_permission, Toast.LENGTH_LONG).show();
@@ -249,9 +316,9 @@ public class VrActivity extends AppCompatActivity implements PopupMenu.OnMenuIte
 
   private native void nativeOnDestroy(long nativeApp);
 
-  private native void nativeOnSurfaceCreated(long nativeApp);
+  private native void nativeOnSurfaceCreated(long nativeApp, int texture, Surface surface);
 
-  private native void nativeOnDrawFrame(long nativeApp);
+  private native void nativeOnDrawFrame(long nativeApp, float[] texMatrix);
 
   private native void nativeOnTriggerEvent(long nativeApp);
 
