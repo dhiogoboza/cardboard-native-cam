@@ -42,6 +42,6 @@ target_link_libraries(cardboard_jni
     ${log-lib}
     #${media-lib}
     #${camera-lib}
-    mediandk
-    camera2ndk
+    #mediandk
+    #camera2ndk
     ${libs_dir}/jni/${ANDROID_ABI}/libcardboard_api.so)

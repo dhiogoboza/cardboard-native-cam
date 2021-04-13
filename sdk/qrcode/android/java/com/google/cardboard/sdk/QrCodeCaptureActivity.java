@@ -116,7 +116,7 @@ public class QrCodeCaptureActivity extends AppCompatActivity
    */
   @Override
   public void onRequestPermissionsResult(
-          int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+      int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     if (VERSION.SDK_INT < VERSION_CODES.Q) {
       if (!(isCameraEnabled() && isWriteExternalStoragePermissionsEnabled())) {

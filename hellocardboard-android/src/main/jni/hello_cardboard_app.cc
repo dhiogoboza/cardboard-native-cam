@@ -75,7 +75,7 @@ constexpr const char* kObjFragmentShader =
 
 }  // anonymous namespace
 
-static void onDisconnected(void* context, ACameraDevice* device)
+/*static void onDisconnected(void* context, ACameraDevice* device)
 {
   // ...
 }
@@ -89,7 +89,7 @@ static ACameraDevice_stateCallbacks cameraDeviceCallbacks = {
         .context = nullptr,
         .onDisconnected = onDisconnected,
         .onError = onError,
-};
+};*/
 
 HelloCardboardApp::HelloCardboardApp(JavaVM* vm, jobject obj, jobject asset_mgr_obj)
     : head_tracker_(nullptr),
@@ -125,7 +125,7 @@ HelloCardboardApp::~HelloCardboardApp() {
   CardboardDistortionRenderer_destroy(distortion_renderer_);
 }
 
-std::string HelloCardboardApp::getBackFacingCamId(ACameraManager *cameraManager)
+/*std::string HelloCardboardApp::getBackFacingCamId(ACameraManager *cameraManager)
 {
   ACameraIdList *cameraIds = nullptr;
   ACameraManager_getCameraIdList(cameraManager, &cameraIds);
@@ -158,7 +158,7 @@ std::string HelloCardboardApp::getBackFacingCamId(ACameraManager *cameraManager)
   ACameraManager_deleteCameraIdList(cameraIds);
 
   return backId;
-}
+}*/
 
 void HelloCardboardApp::OnSurfaceCreated(JNIEnv* env, jint texture, jobject surface) {
   const int obj_vertex_shader =
@@ -215,7 +215,7 @@ void HelloCardboardApp::OnSurfaceCreated(JNIEnv* env, jint texture, jobject surf
 //  //if (!backFacingCameraId.empty())
 //  ACameraDevice *cameraDevice = nullptr;
 //  ACameraManager_openCamera(cameraManager, backFacingCameraId.c_str(), &cameraDeviceCallbacks, &cameraDevice);
-    const char* vertexShaderSrc = R"(
+    /*const char* vertexShaderSrc = R"(
         precision highp float;
         attribute vec3 vertexPosition;
         attribute vec2 uvs;
@@ -228,18 +228,18 @@ void HelloCardboardApp::OnSurfaceCreated(JNIEnv* env, jint texture, jobject surf
             varUvs = (texMatrix * vec4(uvs.x, uvs.y, 0, 0)).xy;
             gl_Position = mvp * vec4(vertexPosition, 1.0);
         }
-    )";
+    )";*/
 
 // Init shaders
   //vtxShader = createShader(vertexShaderSrc, GL_VERTEX_SHADER);
   //fragShader = createShader(fragmentShaderSrc, GL_FRAGMENT_SHADER);
   //prog = createProgram(vtxShader, fragShader);
-  vtxShader = glCreateShader(GL_VERTEX_SHADER);
-  fragShader = glCreateShader(GL_FRAGMENT_SHADER);
-  prog = glCreateProgram();
+  //vtxShader = glCreateShader(GL_VERTEX_SHADER);
+  //fragShader = glCreateShader(GL_FRAGMENT_SHADER);
+  //prog = glCreateProgram();
 
   // Store attribute and uniform locations
-  vtxPosAttrib = glGetAttribLocation(prog, "vertexPosition");
+  /*vtxPosAttrib = glGetAttribLocation(prog, "vertexPosition");
   uvsAttrib = glGetAttribLocation(prog, "uvs");
   mvpMatrix = glGetUniformLocation(prog, "mvp");
   texMatrix = glGetUniformLocation(prog, "texMatrix");
@@ -265,27 +265,27 @@ void HelloCardboardApp::OnSurfaceCreated(JNIEnv* env, jint texture, jobject surf
   GLuint indices[] { 2, 1, 0, 0, 3, 2 };
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buf[1]);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_DYNAMIC_DRAW);
-
+*/
   /**
    * Camera initialisation
    */
 
   // Init cam manager
-  cameraManager = ACameraManager_create();
-
-  // Init camera
-  auto id = getBackFacingCamId(cameraManager);
-  ACameraManager_openCamera(cameraManager, id.c_str(), &cameraDeviceCallbacks, &cameraDevice);
-
-  // Prepare surface
-  textureId = texture;
-  textureWindow = ANativeWindow_fromSurface(env, surface);
-
-  // Prepare outputs for session
-  ACaptureSessionOutput_create(textureWindow, &textureOutput);
-
-  ACaptureSessionOutputContainer_create(&outputs);
-  ACaptureSessionOutputContainer_add(outputs, textureOutput);
+//  cameraManager = ACameraManager_create();
+//
+//  // Init camera
+//  auto id = getBackFacingCamId(cameraManager);
+//  ACameraManager_openCamera(cameraManager, id.c_str(), &cameraDeviceCallbacks, &cameraDevice);
+//
+//  // Prepare surface
+//  textureId = texture;
+//  textureWindow = ANativeWindow_fromSurface(env, surface);
+//
+//  // Prepare outputs for session
+//  ACaptureSessionOutput_create(textureWindow, &textureOutput);
+//
+//  ACaptureSessionOutputContainer_create(&outputs);
+//  ACaptureSessionOutputContainer_add(outputs, textureOutput);
 }
 
 void HelloCardboardApp::SetScreenParams(int width, int height) {
@@ -524,17 +524,16 @@ void HelloCardboardApp::DrawTarget() {
 }
 
 void HelloCardboardApp::DrawRoom() {
-  //glUseProgram(obj_program_);
+  glUseProgram(obj_program_);
 
-  /*std::array<float, 16> room_array = modelview_projection_room_.ToGlArray();
+  std::array<float, 16> room_array = modelview_projection_room_.ToGlArray();
   glUniformMatrix4fv(obj_modelview_projection_param_, 1, GL_FALSE,
                      room_array.data());
-                     */
 
-  //room_tex_.Bind();
-  //room_.Draw();
+  room_tex_.Bind();
+  room_.Draw();
 
-  //CHECKGLERROR("DrawRoom");
+  CHECKGLERROR("DrawRoom");
 }
 
 void HelloCardboardApp::HideTarget() {

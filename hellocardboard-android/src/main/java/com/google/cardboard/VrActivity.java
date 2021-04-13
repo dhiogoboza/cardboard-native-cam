@@ -186,7 +186,8 @@ public class VrActivity extends AppCompatActivity implements PopupMenu.OnMenuIte
 
     @Override
     public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
-      // Prepare texture and surface
+      nativeOnSurfaceCreated(nativeApp, 1, null);
+      /* Prepare texture and surface
       int[] textures = new int[1];
       GLES20.glGenTextures(1, textures, 0);
       GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, textures[0]);
@@ -209,7 +210,7 @@ public class VrActivity extends AppCompatActivity implements PopupMenu.OnMenuIte
       Surface surface = new Surface(surfaceTexture);
 
       // Pass to native code
-      nativeOnSurfaceCreated(nativeApp, textures[0], surface);
+      nativeOnSurfaceCreated(nativeApp, textures[0], surface);*/
     }
 
     @Override
@@ -219,7 +220,8 @@ public class VrActivity extends AppCompatActivity implements PopupMenu.OnMenuIte
 
     @Override
     public void onDrawFrame(GL10 gl10) {
-      synchronized(lock) {
+      nativeOnDrawFrame(nativeApp, new float[]{});
+      /*synchronized(lock) {
         if (frameAvailable) {
           surfaceTexture.updateTexImage();
           surfaceTexture.getTransformMatrix(texMatrix);
@@ -227,7 +229,7 @@ public class VrActivity extends AppCompatActivity implements PopupMenu.OnMenuIte
         }
       }
 
-      nativeOnDrawFrame(nativeApp, texMatrix);
+      nativeOnDrawFrame(nativeApp, texMatrix);*/
     }
   }
 
@@ -279,7 +281,7 @@ public class VrActivity extends AppCompatActivity implements PopupMenu.OnMenuIte
    */
   @Override
   public void onRequestPermissionsResult(
-          int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+      int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     if (!isReadExternalStorageEnabled()) {
       Toast.makeText(this, R.string.read_storage_permission, Toast.LENGTH_LONG).show();

@@ -18,7 +18,7 @@
 #define HELLO_CARDBOARD_ANDROID_SRC_MAIN_JNI_HELLO_CARDBOARD_APP_H_
 
 #include <android/asset_manager.h>
-#include <camera/NdkCameraManager.h>
+//#include <camera/NdkCameraManager.h>
 #include <jni.h>
 
 #include <memory>
@@ -154,7 +154,7 @@ class HelloCardboardApp {
    */
   bool IsPointingAtTarget();
 
-  std::string getBackFacingCamId(ACameraManager *cameraManager);
+  //std::string getBackFacingCamId(ACameraManager *cameraManager);
 
   jobject java_asset_mgr_;
   AAssetManager* asset_mgr_;
@@ -197,7 +197,7 @@ class HelloCardboardApp {
   std::vector<Texture> target_object_selected_textures_;
   int cur_target_object_;
 
-  // CAMERA VARIABLES
+  /* CAMERA VARIABLES
   ACameraManager *cameraManager;
   std::string backFacingCameraId;
 
@@ -215,7 +215,7 @@ class HelloCardboardApp {
   GLuint buf[2];
 
   // The id is generated in Kotlin and passed to C++
-  GLuint textureId;
+  GLuint textureId;*/
 };
 
 }  // namespace ndk_hello_cardboard
