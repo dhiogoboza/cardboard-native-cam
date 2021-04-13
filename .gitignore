@@ -12,6 +12,7 @@ gitlog.json
 .externalNativeBuild
 
 hellocardboard-android/libraries/
+native-cam/libraries/
 
 
 # Built application files

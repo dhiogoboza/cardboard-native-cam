@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 30
     defaultConfig {
         applicationId "com.nvision.face_tracker_android"
-        minSdkVersion 21
-        targetSdkVersion 28
+        minSdkVersion 24
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -30,9 +30,34 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:28.0.0-rc01'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+
+    implementation project(":sdk")
 }
+
+// The dependencies for NDK builds live inside the .aar files so they need to
+// be extracted before NDK targets can link against.
+task extractNdk(type: Copy)  {
+    if (file("${project.rootDir}/sdk/build/outputs/aar/sdk-release.aar").exists()) {
+        copy {
+            from zipTree("${project.rootDir}/sdk/build/outputs/aar/sdk-release.aar")
+            into "libraries/"
+            include "jni/**/libcardboard_api.so"
+        }
+        copy {
+            from "${project.rootDir}/sdk/include/cardboard.h"
+            into "libraries/"
+        }
+    }
+}
+
+task deleteNdk(type: Delete) {
+    delete "libraries/jni"
+    delete "libraries/cardboard.h"
+}
+
+build.dependsOn(extractNdk)
+clean.dependsOn(deleteNdk)
