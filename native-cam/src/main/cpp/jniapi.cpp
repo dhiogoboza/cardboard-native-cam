@@ -1,6 +1,7 @@
 #include <android/native_window.h> // requires ndk r5 or newer
 #include <android/native_window_jni.h> // requires ndk r5 or newer
 #include <condition_variable>
+#include "cardboard.h"
 #include "jniapi.h"
 #include "logger.h"
 #include "nvapp.h"
@@ -80,10 +81,11 @@ void JNI_OnUnload(JavaVM *vm, void *reserved)
 
 }
 
-JNIEXPORT void JNICALL NATIVE_METHOD(nativeCreateApp)(JNIEnv* jenv, jobject obj)
+JNIEXPORT void JNICALL NATIVE_METHOD(nativeCreateApp)(JNIEnv* jenv, jobject obj, jobject context)
 {
     kApp = new nv::NVApp();
     kApp->Init();
+    Cardboard_initializeAndroid(g_vm, context);
 }
 
 

@@ -5,6 +5,8 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 
+set(libs_dir ${CMAKE_CURRENT_SOURCE_DIR}/libraries)
+
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
 # You can define multiple libraries, and CMake builds them for you.
@@ -28,6 +30,7 @@ add_library( # Sets the name of the library.
 # you want to add. CMake verifies that the library exists before
 # completing its build.
 
+target_include_directories(nvision_core PRIVATE ${libs_dir})
 
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this
@@ -41,4 +44,5 @@ target_link_libraries( # Specifies the target library.
                        EGL
                        GLESv2
                        log
+                       ${libs_dir}/jni/${ANDROID_ABI}/libcardboard_api.so
                        )

@@ -182,7 +182,7 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
         mIsSurfaceAvailable = false;
 
         //Create a App
-        nativeCreateApp();
+        nativeCreateApp(activity);
     }
 
     public void onResume() {
@@ -517,7 +517,7 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
     }
 
 
-    static native void nativeCreateApp();
+    static native void nativeCreateApp(Activity activity);
 
     static native void nativeResumeApp();
 
