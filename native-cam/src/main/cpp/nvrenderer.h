@@ -129,9 +129,6 @@ namespace nv
 
             ndk_hello_cardboard::Matrix4x4 head_view_;
             ndk_hello_cardboard::Matrix4x4 model_target_;
-
-            ndk_hello_cardboard::Matrix4x4 modelview_projection_target_;
-            ndk_hello_cardboard::Matrix4x4 modelview_projection_room_;
         };
     }
 }

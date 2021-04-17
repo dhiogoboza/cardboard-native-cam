@@ -485,22 +485,13 @@ namespace nv
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            // Draw eyes views
-            for (int eye = 0; eye < 2; ++eye) {
-                glViewport(eye == kLeft ? 0 : width_ / 2, 0, width_ / 2, height_);
+            // Draw camera on eye 1
+            glViewport(0, 0, width_ / 2, height_);
+            RenderCamera();
 
-                Matrix4x4 eye_matrix = GetMatrixFromGlArray(eye_matrices_[eye]);
-                Matrix4x4 eye_view = eye_matrix * head_view_;
-
-                Matrix4x4 projection_matrix =
-                        GetMatrixFromGlArray(projection_matrices_[eye]);
-                Matrix4x4 modelview_target = eye_view * model_target_;
-                modelview_projection_target_ = projection_matrix * modelview_target;
-                modelview_projection_room_ = projection_matrix * eye_view;
-
-                // Draw camera
-                RenderCamera();
-            }
+            // Draw camera on eye 2
+            glViewport(width_ / 2, 0, width_ / 2, height_);
+            RenderCamera();
 
             // Render
             glViewport(0, 0, width_, height_);
