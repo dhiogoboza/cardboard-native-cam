@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">face_tracker_android</string>
+    <string name="choose_viewer">Switch Cardboard viewer</string>
 </resources>

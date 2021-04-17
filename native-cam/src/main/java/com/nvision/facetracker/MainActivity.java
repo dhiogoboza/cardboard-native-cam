@@ -1,9 +1,13 @@
 package com.nvision.facetracker;
 
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import com.nvision.face_tracker_android.R;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -45,5 +49,22 @@ public class MainActivity extends AppCompatActivity {
         if (mCameraView != null) {
             mCameraView.deinit();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.choose_viewer) {
+            CameraRenderView.nativeSwitchViewer();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

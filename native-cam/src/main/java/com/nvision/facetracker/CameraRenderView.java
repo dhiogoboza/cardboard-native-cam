@@ -517,19 +517,21 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
     }
 
 
-    static native void nativeCreateApp(Activity activity);
+    public static native void nativeCreateApp(Activity activity);
 
-    static native void nativeResumeApp();
+    public static native void nativeResumeApp();
 
-    static native void nativeSetSurface(Surface surface);
+    public static native void nativeSetSurface(Surface surface);
 
-    static native void nativePauseApp();
+    public static native void nativePauseApp();
 
-    static native void nativeDestroyApp();
+    public static native void nativeDestroyApp();
 
-    static native SurfaceTexture nativeSurfaceTexture(boolean flip);
+    public static native SurfaceTexture nativeSurfaceTexture(boolean flip);
 
-    static native void nativeRequestUpdateTexture();
+    public static native void nativeRequestUpdateTexture();
 
-    static native void nativeDestroyTexture();
+    public static native void nativeDestroyTexture();
+
+    public static native void nativeSwitchViewer();
 }
