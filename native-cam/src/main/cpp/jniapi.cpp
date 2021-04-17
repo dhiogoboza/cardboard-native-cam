@@ -148,6 +148,10 @@ JNIEXPORT void JNICALL NATIVE_METHOD(nativeRequestUpdateTexture)(JNIEnv* jenv, j
     request_update_tex = true;
 }
 
+JNIEXPORT void JNICALL NATIVE_METHOD(nativeSwitchViewer)(JNIEnv* jenv, jobject obj){
+    kApp->Render()->SwitchViewer();
+}
+
 
 }
 

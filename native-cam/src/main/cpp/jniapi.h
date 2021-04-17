@@ -15,6 +15,9 @@ extern "C" {
     JNIEXPORT jobject JNICALL NATIVE_METHOD(nativeSurfaceTexture)(JNIEnv* jenv, jobject obj, jboolean flip);
     JNIEXPORT void JNICALL NATIVE_METHOD(nativeDestroyTexture)(JNIEnv* jenv, jobject obj);
     JNIEXPORT void JNICALL NATIVE_METHOD(nativeRequestUpdateTexture)(JNIEnv* jenv, jobject obj);
+
+    // Cardboard methods
+    JNIEXPORT void JNICALL NATIVE_METHOD(nativeSwitchViewer)(JNIEnv* env, jobject obj);
 }
 
 #endif //JNIAPI_H_

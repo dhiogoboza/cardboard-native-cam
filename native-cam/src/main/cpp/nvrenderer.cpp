@@ -171,9 +171,15 @@ namespace nv
 
             msg_ = MSG_NONE;
 
+            InitCardboard();
+
             std::lock_guard<std::mutex> lk(mut_);
             cond_.notify_one();
             return true;
+        }
+
+        void NVRenderer::InitCardboard() {
+            head_tracker_ = CardboardHeadTracker_create();
         }
 
         void NVRenderer::CreateSurfaceTextureId() {
@@ -190,6 +196,10 @@ namespace nv
                 glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                 glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
             }
+        }
+
+        void NVRenderer::SwitchViewer() {
+            CardboardQrCode_scanQrCodeAndSaveDeviceParams();
         }
 
         void NVRenderer::FlipBackground(bool flip) {

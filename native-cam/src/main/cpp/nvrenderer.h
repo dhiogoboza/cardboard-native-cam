@@ -6,6 +6,8 @@
 #include <GLES2/gl2ext.h>
 #include <condition_variable>
 
+#include "cardboard.h"
+
 namespace nv
 {
     namespace render
@@ -36,6 +38,8 @@ namespace nv
 
             void _Run();
 
+            void SwitchViewer();
+
         protected:
             bool Initialise();
 
@@ -52,6 +56,8 @@ namespace nv
             void RenderBackground();
 
             void SwapBuffers();
+
+            void InitCardboard();
 
         private:
             void _renderLoop();
@@ -91,6 +97,24 @@ namespace nv
             bool window_init_;
             bool pause_;
 
+
+            // Cardboard related variables
+            CardboardHeadTracker* head_tracker_;
+            CardboardLensDistortion* lens_distortion_;
+            CardboardDistortionRenderer* distortion_renderer_;
+
+            CardboardEyeTextureDescription left_eye_texture_description_;
+            CardboardEyeTextureDescription right_eye_texture_description_;
+
+            bool screen_params_changed_;
+            bool device_params_changed_;
+
+            float projection_matrices_[2][16];
+            float eye_matrices_[2][16];
+
+            GLuint depthRenderBuffer_;  // depth buffer
+            GLuint framebuffer_;        // framebuffer object
+            GLuint texture_;            // distortion texture
         };
     }
 }
