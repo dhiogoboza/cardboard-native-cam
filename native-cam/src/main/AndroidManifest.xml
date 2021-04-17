@@ -15,8 +15,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.nvision.facetracker.MainActivity"
-            android:screenOrientation="userLandscape">
+        <activity android:name="com.nvision.facetracker.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

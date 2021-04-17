@@ -28,14 +28,71 @@ static auto kFragmentShader =
                 "  gl_FragColor = color;\n"
                 "}\n";
 
-static const GLfloat kTriangleVertices[] = { -1.0f, -1.0f, -1.0f, 1.0f,
-                                      1.0f, 1.0f, 1.0f, -1.0f };
+//static const GLfloat kTriangleVertices[] = { -1.0f, -1.0f, -1.0f, 1.0f,
+//                                      1.0f, 1.0f, 1.0f, -1.0f };
 
-static const GLfloat kUvs[] = {1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0};
+static const GLfloat kTriangleVertices[] = { // in counterclockwise order:
+        -1.0f, -1.0f,   // 0.left - mid
+        1.0f, -1.0f,   // 1. right - mid
+        -1.0f, 1.0f,   // 2. left - top
+        1.0f, 1.0f,   // 3. right - top
+//
+//    	 -1.0f, -1.0f, //4. left - bottom
+//    	 1.0f , -1.0f, //5. right - bottom
 
-static const GLfloat kUvs_flip[] = {0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0};
 
-static const GLushort kIndices[] = {0, 3, 1, 1, 3, 2};
+//       -1.0f, -1.0f,  // 0. left-bottom
+//        0.0f, -1.0f,   // 1. mid-bottom
+//       -1.0f,  1.0f,   // 2. left-top
+//        0.0f,  1.0f,   // 3. mid-top
+
+        //1.0f, -1.0f,  // 4. right-bottom
+        //1.0f, 1.0f,   // 5. right-top
+
+};
+
+//static const GLfloat kUvs[] = {1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0};
+//static const GLfloat kUvs[] = {1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0};
+
+// UVs of the quad vertices (S, T)
+//const GLfloat kUvs[] = {
+//        0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+//};
+
+// static const GLfloat kUvs_flip[] = {0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0}; //bkp
+
+
+
+//static const GLfloat kUvs[] =      {1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0};
+//
+//static const GLfloat kUvs_flip[] = {1.0, 0.0, 1.0, 1.0,
+//                                    0.0, 1.0, 0.0, 0.0};
+
+//const GLfloat kUvs_flip[] = {
+//        -1.0f, -1.0f, +1.0f, -1.0f, -1.0f, +1.0f, +1.0f, +1.0f
+//};
+
+//static const GLfloat kUvs[] = {1.0, 1.0, 0.0, 1.0,
+//                               0.0, 0.0, 1.0, 0.0};
+
+//static const GLfloat kUvs[] = {0.0, 1.0, 1.0, 1.0,
+//                               1.0, 0.0, 0.0, 0.0};
+
+static const GLfloat kUvs[] = {
+        0.0f, 1.0f,  // A. left-bottom
+        1.0f, 1.0f,  // B. right-bottom
+        0.0f, 0.0f,  // C. left-top
+        1.0f, 0.0f   // D. right-top
+//
+//        1.0f,  1.0f,
+//        1.0f,  0.0f,
+//        0.0f,  1.0f,
+//        0.0f,  0.0f
+};
+
+//static const GLushort kIndices[] = {0, 3, 1, 1, 3, 2};
+
+static const GLushort kIndices[] = {0, 1, 2, 2, 1, 3}; // order to draw vertices
 
 namespace nv
 {
@@ -53,9 +110,9 @@ namespace nv
             glBindBuffer(GL_ARRAY_BUFFER, uv_id_);
             glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*8, kUvs, GL_STATIC_DRAW);
 
-            glGenBuffers(1, &uv_flip_id);
-            glBindBuffer(GL_ARRAY_BUFFER, uv_flip_id);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*8, kUvs_flip, GL_STATIC_DRAW);
+//            glGenBuffers(1, &uv_flip_id);
+//            glBindBuffer(GL_ARRAY_BUFFER, uv_flip_id);
+//            glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*8, kUvs_flip, GL_STATIC_DRAW);
 
             glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -90,12 +147,12 @@ namespace nv
 
             glVertexAttribPointer(position_handle_, 2, GL_FLOAT, GL_FALSE, 0, kTriangleVertices);
             glEnableVertexAttribArray(position_handle_);
-            if(flip)
-            {
-                glVertexAttribPointer(uv_handle_, 2, GL_FLOAT, GL_FALSE, 0, kUvs_flip );
-            }else{
+//            if(flip)
+//            {
+//                glVertexAttribPointer(uv_handle_, 2, GL_FLOAT, GL_FALSE, 0, kUvs_flip );
+//            }else{
                 glVertexAttribPointer(uv_handle_, 2, GL_FLOAT, GL_FALSE, 0, kUvs );
-            }
+//            }
 
             glEnableVertexAttribArray(uv_handle_);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indice_id_);

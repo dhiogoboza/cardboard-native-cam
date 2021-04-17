@@ -406,12 +406,18 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
             int maxPreviewWidth = displaySize.x;
             int maxPreviewHeight = displaySize.y;
 
-            if (swappedDimensions) {
-                rotatedPreviewWidth = height;
-                rotatedPreviewHeight = width;
-                maxPreviewWidth = displaySize.y;
-                maxPreviewHeight = displaySize.x;
+            if (rotatedPreviewHeight > rotatedPreviewWidth) {
+                int aux = rotatedPreviewHeight;
+                rotatedPreviewHeight = rotatedPreviewWidth;
+                rotatedPreviewWidth = aux;
             }
+
+//            if (swappedDimensions) {
+//                rotatedPreviewWidth = height;
+//                rotatedPreviewHeight = width;
+//                maxPreviewWidth = displaySize.y;
+//                maxPreviewHeight = displaySize.x;
+//            }
 
             if (maxPreviewWidth > MAX_PREVIEW_WIDTH) {
                 maxPreviewWidth = MAX_PREVIEW_WIDTH;

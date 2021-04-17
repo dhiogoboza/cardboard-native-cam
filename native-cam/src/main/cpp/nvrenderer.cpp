@@ -503,8 +503,11 @@ namespace nv
                 CheckGlError("glClearColor");
                 glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
                 glViewport(0, 0, width_, height_);
-
-                RenderBackground();
+                //RenderBackground();
+                if (eye == 0)
+                    android_app_update_tex_image();
+                if (cam_background_ != 0)
+                    cam_background_->Render(flip_background_);
             }
 
             // Render
