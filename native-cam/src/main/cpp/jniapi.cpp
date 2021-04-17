@@ -83,9 +83,10 @@ void JNI_OnUnload(JavaVM *vm, void *reserved)
 
 JNIEXPORT void JNICALL NATIVE_METHOD(nativeCreateApp)(JNIEnv* jenv, jobject obj, jobject context)
 {
+    Cardboard_initializeAndroid(g_vm, context);
+
     kApp = new nv::NVApp();
     kApp->Init();
-    Cardboard_initializeAndroid(g_vm, context);
 }
 
 
@@ -104,6 +105,11 @@ JNIEXPORT void JNICALL NATIVE_METHOD(nativePauseApp)(JNIEnv* jenv, jobject obj)
 JNIEXPORT void JNICALL NATIVE_METHOD(nativeDestroyApp)(JNIEnv* jenv, jobject obj)
 {
     kApp->Deinit();
+}
+
+JNIEXPORT void JNICALL NATIVE_METHOD(nativeCreateSurface)(JNIEnv* jenv, jobject obj, jobject surface)
+{
+    kApp->Render()->CreateSurface(surface);
 }
 
 JNIEXPORT void JNICALL NATIVE_METHOD(nativeSetSurface)(JNIEnv* jenv, jobject obj, jobject surface)

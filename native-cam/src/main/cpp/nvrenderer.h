@@ -7,6 +7,7 @@
 #include <condition_variable>
 
 #include "cardboard.h"
+#include "util.h"
 
 namespace nv
 {
@@ -25,6 +26,8 @@ namespace nv
 
             void Destroy();
 
+            void CreateSurface(jobject surface);
+
             void SetWindow(ANativeWindow* window);
 
             void FlipBackground(bool flip);
@@ -37,6 +40,8 @@ namespace nv
             GLuint CreateProgram(const char* vertex_source, const char* fragment_source);
 
             void _Run();
+
+            bool UpdateDeviceParams();
 
             void SwitchViewer();
 
@@ -51,6 +56,8 @@ namespace nv
 
             void ShutDown();
 
+            ndk_hello_cardboard::Matrix4x4 GetPose();
+
             void DrawFrame();
 
             void RenderBackground();
@@ -61,6 +68,10 @@ namespace nv
 
         private:
             void _renderLoop();
+
+            void GlSetup();
+
+            void GlTeardown();
 
 
         private:
@@ -115,6 +126,12 @@ namespace nv
             GLuint depthRenderBuffer_;  // depth buffer
             GLuint framebuffer_;        // framebuffer object
             GLuint texture_;            // distortion texture
+
+            ndk_hello_cardboard::Matrix4x4 head_view_;
+            ndk_hello_cardboard::Matrix4x4 model_target_;
+
+            ndk_hello_cardboard::Matrix4x4 modelview_projection_target_;
+            ndk_hello_cardboard::Matrix4x4 modelview_projection_room_;
         };
     }
 }

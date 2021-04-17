@@ -9,6 +9,26 @@
 
 #define LOG_TAG "NVRenderer"
 
+// Default near clip plane z-axis coordinate.
+static constexpr float kZNear = 0.1f;
+
+// Default far clip plane z-axis coordinate.
+static constexpr float kZFar = 100.f;
+
+constexpr uint64_t kPredictionTimeWithoutVsyncNanos = 50000000;
+
+constexpr float kDefaultFloorHeight = -1.7f;
+
+// The objects are about 1 meter in radius, so the min/max target distance are
+// set so that the objects are always within the room (which is about 5 meters
+// across) and the reticle is always closer than any objects.
+constexpr float kMinTargetDistance = 2.5f;
+constexpr float kMaxTargetDistance = 3.5f;
+constexpr float kMinTargetHeight = 0.5f;
+constexpr float kMaxTargetHeight = kMinTargetHeight + 3.0f;
+
+using namespace ndk_hello_cardboard;
+
 namespace nv
 {
     namespace render
@@ -25,27 +45,177 @@ namespace nv
                 surface_texture_id_(0),
                 flip_background_(false),
                 window_init_(false),
-                pause_(false)
+                pause_(false),
+                // cardboard
+                head_tracker_(nullptr),
+                lens_distortion_(nullptr),
+                distortion_renderer_(nullptr),
+                screen_params_changed_(false),
+                device_params_changed_(false),
+                depthRenderBuffer_(0),
+                framebuffer_(0),
+                texture_(0)
         {
-
-
+            InitCardboard();
         }
 
         NVRenderer::~NVRenderer() {
 
         }
 
+        bool NVRenderer::UpdateDeviceParams() {
+            // Checks if screen or device parameters changed
+            if (!screen_params_changed_ && !device_params_changed_) {
+                return true;
+            }
+
+            // Get saved device parameters
+            uint8_t* buffer;
+            int size;
+            CardboardQrCode_getSavedDeviceParams(&buffer, &size);
+
+            // If there are no parameters saved yet, returns false.
+            if (size == 0) {
+                return false;
+            }
+
+            CardboardLensDistortion_destroy(lens_distortion_);
+            lens_distortion_ = CardboardLensDistortion_create(
+                    buffer, size, width_, height_);
+
+            CardboardQrCode_destroy(buffer);
+
+            GlSetup();
+
+            CardboardDistortionRenderer_destroy(distortion_renderer_);
+            distortion_renderer_ = CardboardOpenGlEs2DistortionRenderer_create();
+
+            // Get the distortion meshes for each of the eyes and pass it to the distortion renderer:
+            // FIXME: Reverse order?
+            CardboardMesh left_mesh;
+            CardboardMesh right_mesh;
+            CardboardLensDistortion_getDistortionMesh(lens_distortion_, kLeft,
+                                                      &left_mesh);
+            CardboardLensDistortion_getDistortionMesh(lens_distortion_, kRight,
+                                                      &right_mesh);
+
+            CardboardDistortionRenderer_setMesh(distortion_renderer_, &left_mesh, kLeft);
+            CardboardDistortionRenderer_setMesh(distortion_renderer_, &right_mesh,
+                                                kRight);
+
+            // Get eye matrices
+            // Get view and projection matrices for left and right eye
+            // FIXME: Reverse order?
+            CardboardLensDistortion_getEyeFromHeadMatrix(
+                    lens_distortion_, kLeft, eye_matrices_[0]);
+            CardboardLensDistortion_getEyeFromHeadMatrix(
+                    lens_distortion_, kRight, eye_matrices_[1]);
+            CardboardLensDistortion_getProjectionMatrix(
+                    lens_distortion_, kLeft, kZNear, kZFar, projection_matrices_[0]);
+            CardboardLensDistortion_getProjectionMatrix(
+                    lens_distortion_, kRight, kZNear, kZFar, projection_matrices_[1]);
+
+            screen_params_changed_ = false;
+            device_params_changed_ = false;
+
+            return true;
+        }
+
+        void NVRenderer::GlSetup() {
+            if (framebuffer_ != 0) {
+                GlTeardown();
+            }
+
+            // Create render texture.
+            glGenTextures(1, &texture_);
+            glBindTexture(GL_TEXTURE_2D, texture_);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width_, height_, 0,
+                         GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+            left_eye_texture_description_.texture = texture_;
+            left_eye_texture_description_.left_u = 0;
+            left_eye_texture_description_.right_u = 0.5;
+            left_eye_texture_description_.top_v = 1;
+            left_eye_texture_description_.bottom_v = 0;
+
+            right_eye_texture_description_.texture = texture_;
+            right_eye_texture_description_.left_u = 0.5;
+            right_eye_texture_description_.right_u = 1;
+            right_eye_texture_description_.top_v = 1;
+            right_eye_texture_description_.bottom_v = 0;
+
+            //...
+
+            // FIXME: Is the code below necessary?
+            // Generate depth buffer to perform depth test.
+            glGenRenderbuffers(1, &depthRenderBuffer_);
+            glBindRenderbuffer(GL_RENDERBUFFER, depthRenderBuffer_);
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width_,
+                                  height_);
+
+            // Create render target.
+            glGenFramebuffers(1, &framebuffer_);
+            glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+                                   texture_, 0);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+                                      GL_RENDERBUFFER, depthRenderBuffer_);
+        }
+
+        void NVRenderer::GlTeardown() {
+            if (framebuffer_ == 0) {
+                return;
+            }
+            glDeleteRenderbuffers(1, &depthRenderBuffer_);
+            depthRenderBuffer_ = 0;
+            glDeleteFramebuffers(1, &framebuffer_);
+            framebuffer_ = 0;
+            glDeleteTextures(1, &texture_);
+            texture_ = 0;
+        }
+
         void NVRenderer::Resume() {
             pause_ = false;
+            CardboardHeadTracker_resume(head_tracker_);
+            LOGD("MEULOG resumiu head_tracker_: %d\n", head_tracker_);
+
+            // Parameters may have changed.
+            device_params_changed_ = true;
+
+            // Check for device parameters existence in external storage. If they're
+            // missing, we must scan a Cardboard QR code and save the obtained parameters.
+            uint8_t* buffer;
+            int size;
+            CardboardQrCode_getSavedDeviceParams(&buffer, &size);
+            if (size == 0) {
+                SwitchViewer();
+            }
+            CardboardQrCode_destroy(buffer);
         }
 
 
         void NVRenderer::Pause() {
             pause_ = true;
+            CardboardHeadTracker_pause(head_tracker_);
+            LOGD("MEULOG pausou head_tracker_: %d\n", head_tracker_);
         }
 
         void NVRenderer::Destroy() {
             msg_ = MSG_LOOP_EXIT;
+            CardboardHeadTracker_destroy(head_tracker_);
+            head_tracker_ = nullptr;
+            LOGD("MEULOG destruiu head_tracker_: %d\n", head_tracker_);
+        }
+
+        void NVRenderer::CreateSurface(jobject surface) {
+            // TODO:
+            // Target object first appears directly in front of user.
+            model_target_ = GetTranslationMatrix({0.0f, 1.5f, kMinTargetDistance});
         }
 
         void NVRenderer::SetWindow(ANativeWindow *window) {
@@ -171,8 +341,6 @@ namespace nv
 
             msg_ = MSG_NONE;
 
-            InitCardboard();
-
             std::lock_guard<std::mutex> lk(mut_);
             cond_.notify_one();
             return true;
@@ -180,6 +348,7 @@ namespace nv
 
         void NVRenderer::InitCardboard() {
             head_tracker_ = CardboardHeadTracker_create();
+            LOGD("MEULOG criou head_tracker_: %d\n", head_tracker_);
         }
 
         void NVRenderer::CreateSurfaceTextureId() {
@@ -279,19 +448,82 @@ namespace nv
             return;
         }
 
+        Matrix4x4 NVRenderer::GetPose() {
+            std::array<float, 4> out_orientation;
+            std::array<float, 3> out_position;
+            long monotonic_time_nano = GetMonotonicTimeNano();
+            monotonic_time_nano += kPredictionTimeWithoutVsyncNanos;
+            CardboardHeadTracker_getPose(head_tracker_, monotonic_time_nano,
+                                         &out_position[0], &out_orientation[0]);
+            return GetTranslationMatrix(out_position) *
+                   Quatf::FromXYZW(&out_orientation[0]).ToMatrix();
+        }
+
         void NVRenderer::DrawFrame() {
             //LOG_INFO("nv log renderer drawframe");
-            glClearColor(0.0, 0.0, 0.0, 1.0);
-            CheckGlError("glClearColor");
-            glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-            glViewport(0, 0, width_, height_);
 
-            RenderBackground();
+
+
+            if (!UpdateDeviceParams()) {
+                return;
+            }
+
+            // Update Head Pose.
+            head_view_ = GetPose();
+
+            // Incorporate the floor height into the head_view
+            head_view_ =
+                    head_view_ * GetTranslationMatrix({0.0f, kDefaultFloorHeight, 0.0f});
+
+            // Bind buffer
+            glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
+
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);
+            glDisable(GL_SCISSOR_TEST);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            // Draw eyes views
+            for (int eye = 0; eye < 2; ++eye) {
+                glViewport(eye == kLeft ? 0 : width_ / 2, 0, width_ / 2, height_);
+
+                Matrix4x4 eye_matrix = GetMatrixFromGlArray(eye_matrices_[eye]);
+                Matrix4x4 eye_view = eye_matrix * head_view_;
+
+                Matrix4x4 projection_matrix =
+                        GetMatrixFromGlArray(projection_matrices_[eye]);
+                Matrix4x4 modelview_target = eye_view * model_target_;
+                modelview_projection_target_ = projection_matrix * modelview_target;
+                modelview_projection_room_ = projection_matrix * eye_view;
+
+                // Draw room and target
+                glClearColor(0.0, 0.0, 0.0, 1.0);
+                CheckGlError("glClearColor");
+                glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+                glViewport(0, 0, width_, height_);
+
+                RenderBackground();
+            }
+
+            // Render
+            CardboardDistortionRenderer_renderEyeToDisplay(
+                    distortion_renderer_, /* target_display = */ 0, /* x = */ 0, /* y = */ 0,
+                    width_, height_, &left_eye_texture_description_,
+                    &right_eye_texture_description_);
+
+//            glClearColor(0.0, 0.0, 0.0, 1.0);
+//            CheckGlError("glClearColor");
+//            glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+//            glViewport(0, 0, width_, height_);
+//
+//            RenderBackground();
         }
 
         void NVRenderer::RenderBackground() {
             android_app_update_tex_image();
-            if(cam_background_ != 0)
+            if (cam_background_ != 0)
                 cam_background_->Render(flip_background_);
         }
 

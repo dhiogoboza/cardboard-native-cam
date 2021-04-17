@@ -201,6 +201,7 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
         mIsSurfaceAvailable = false;
+        nativeCreateSurface(surfaceHolder.getSurface());
     }
 
     @Override
@@ -443,7 +444,7 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
     private Surface getPreviewSurface(Size size) {
         if (mSurface == null) {
             //Get the SurfaceTexture from SurfaceView GL Context
-            mSurfaceTexture = nativeSurfaceTexture(mCameraId == CAMERA_FACE_BACK ? true : false);
+            mSurfaceTexture = nativeSurfaceTexture(false);//mCameraId == CAMERA_FACE_BACK ? true : false);
             mSurfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
                 @Override
                 public void onFrameAvailable(SurfaceTexture surfaceTexture) {
@@ -532,6 +533,8 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
     public static native void nativeRequestUpdateTexture();
 
     public static native void nativeDestroyTexture();
+
+    public static native void nativeCreateSurface(Surface surface);
 
     public static native void nativeSwitchViewer();
 }

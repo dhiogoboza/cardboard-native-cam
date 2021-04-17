@@ -33,8 +33,6 @@ namespace nv
     }
 
     void NVApp::Deinit() {
-
-
         if(renderer_ != 0)
         {
             renderer_->Destroy();

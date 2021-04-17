@@ -22,7 +22,8 @@ add_library( # Sets the name of the library.
              src/main/cpp/jniapi.cpp
              src/main/cpp/nvapp.cpp
              src/main/cpp/nvrenderer.cpp
-             src/main/cpp/nv_cam_background.cpp)
+             src/main/cpp/nv_cam_background.cpp
+             src/main/cpp/util.cc)
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
