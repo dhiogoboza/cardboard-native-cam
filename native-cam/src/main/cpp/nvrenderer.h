@@ -60,7 +60,7 @@ namespace nv
 
             void DrawFrame();
 
-            void RenderBackground();
+            void RenderCamera();
 
             void SwapBuffers();
 

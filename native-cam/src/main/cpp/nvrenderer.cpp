@@ -498,33 +498,19 @@ namespace nv
                 modelview_projection_target_ = projection_matrix * modelview_target;
                 modelview_projection_room_ = projection_matrix * eye_view;
 
-                // Draw room and target
-                glClearColor(0.0, 0.0, 0.0, 1.0);
-                CheckGlError("glClearColor");
-                glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-                glViewport(0, 0, width_, height_);
-                //RenderBackground();
-                if (eye == 0)
-                    android_app_update_tex_image();
-                if (cam_background_ != 0)
-                    cam_background_->Render(flip_background_);
+                // Draw camera
+                RenderCamera();
             }
 
             // Render
+            glViewport(0, 0, width_, height_);
             CardboardDistortionRenderer_renderEyeToDisplay(
                     distortion_renderer_, /* target_display = */ 0, /* x = */ 0, /* y = */ 0,
                     width_, height_, &left_eye_texture_description_,
                     &right_eye_texture_description_);
-
-//            glClearColor(0.0, 0.0, 0.0, 1.0);
-//            CheckGlError("glClearColor");
-//            glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-//            glViewport(0, 0, width_, height_);
-//
-//            RenderBackground();
         }
 
-        void NVRenderer::RenderBackground() {
+        void NVRenderer::RenderCamera() {
             android_app_update_tex_image();
             if (cam_background_ != 0)
                 cam_background_->Render(flip_background_);
