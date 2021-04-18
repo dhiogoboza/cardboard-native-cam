@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">face_tracker_android</string>
     <string name="choose_viewer">Switch Cardboard viewer</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+    <string name="closing_app">Closing Application</string>
+    <string name="closing_app_sure">Are you sure you want to close this application?</string>
+    <string name="accessibility_back">Back</string>
+    <string name="accessibility_settings">Settings</string>
 </resources>

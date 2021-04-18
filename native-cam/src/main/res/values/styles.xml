@@ -8,4 +8,12 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="UiButton">
+        <item name="android:layout_width">@dimen/ui_button_size</item>
+        <item name="android:layout_height">@dimen/ui_button_size</item>
+        <item name="android:background">@drawable/rippleable</item>
+        <item name="android:padding">9dip</item>
+    </style>
+
+    <dimen name="ui_button_size">20dp</dimen>
 </resources>

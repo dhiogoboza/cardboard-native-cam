@@ -1,19 +1,21 @@
 package com.nvision.facetracker;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
-import android.view.Menu;
+import android.util.Log;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.PopupMenu;
 
 import com.nvision.face_tracker_android.R;
 
-import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class MainActivity extends AppCompatActivity {
-
+public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
+    private static final String TAG = "MainActivity";
     private CameraRenderView mCameraView;
 
     @Override
@@ -81,20 +83,42 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-        return true;
+    /**
+     * Callback for when close button is pressed.
+     */
+    public void closeSample(View view) {
+        Log.d(TAG, "Leaving VR sample");
+        new AlertDialog.Builder(this).setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle(R.string.closing_app)
+                .setMessage(R.string.closing_app_sure)
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .setNegativeButton(R.string.no, null)
+                .show();
+    }
+
+    /**
+     * Callback for when settings_menu button is pressed.
+     */
+    public void showSettings(View view) {
+        PopupMenu popup = new PopupMenu(this, view);
+        MenuInflater inflater = popup.getMenuInflater();
+        inflater.inflate(R.menu.main_menu, popup.getMenu());
+        popup.setOnMenuItemClickListener(this);
+        popup.show();
     }
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.choose_viewer) {
+    public boolean onMenuItemClick(MenuItem menuItem) {
+        if (menuItem.getItemId() == R.id.choose_viewer) {
             CameraRenderView.nativeSwitchViewer();
             return true;
         }
 
-        return super.onOptionsItemSelected(item);
+        return false;
     }
 }
