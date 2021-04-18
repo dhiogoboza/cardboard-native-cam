@@ -10,15 +10,13 @@
         android:layout_height="match_parent"
         android:id="@+id/camera_view"/>
 
-    <ImageButton
+    <ImageView
         style="@style/UiButton"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:id="@+id/ui_back_button"
+        android:id="@+id/ui_close_button"
         android:contentDescription="@string/accessibility_back"
-        android:src="@drawable/quantum_ic_close_white_24"
-        android:layout_gravity="start|top"
-        android:onClick="closeSample"/>
+        android:src="@drawable/quantum_ic_close_white_24"/>
 
     <RelativeLayout
         android:id="@+id/ui_alignment_marker"
@@ -29,13 +27,11 @@
         android:background="@color/alignment_marker_color">
     </RelativeLayout>
 
-    <ImageButton
+    <ImageView
         style="@style/UiButton"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
         android:id="@+id/ui_settings_button"
         android:contentDescription="@string/accessibility_settings"
-        android:src="@drawable/quantum_ic_settings_white_24"
-        android:layout_gravity="end|top"
-        android:onClick="showSettings"/>
+        android:src="@drawable/quantum_ic_settings_white_24"/>
 </RelativeLayout>
