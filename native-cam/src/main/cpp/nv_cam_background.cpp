@@ -9,6 +9,8 @@
 #include "nvrenderer.h"
 #include "logger.h"
 
+#include <opencv2/core/core.hpp>
+
 static auto kVertexShader =
         "attribute vec4 vPosition;\n"
                 "attribute vec2 vUv;\n"
