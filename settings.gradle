@@ -1,3 +1,3 @@
-include ':sdk', ':hellocardboard-android', ':native-cam', ':opencv'
+include ':sdk', ':hellocardboard-android', ':native-cam', ':opencv', ':tutorial-3-cameracontrol'
 
 project(':opencv').projectDir = new File("$System.env.OPENCV_SDK_DIR" + '/sdk')

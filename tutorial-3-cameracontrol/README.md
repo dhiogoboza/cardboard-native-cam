@@ -1,0 +1,1 @@
+OpenCV samples extracted from https://github.com/opencv/opencv/tree/master/samples/android/tutorial-3-cameracontrol.
