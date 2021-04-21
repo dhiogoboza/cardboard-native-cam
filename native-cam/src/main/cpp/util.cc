@@ -23,11 +23,12 @@
 
 #include <array>
 #include <cmath>
+#include <opencv2/core/core.hpp>
 #include <random>
 #include <sstream>
 #include <string>
 
-#include <GLES2/gl2.h>
+#include <GLES3/gl32.h>
 
 namespace ndk_hello_cardboard {
 
@@ -542,6 +543,38 @@ void Texture::Bind() const {
   HELLOCARDBOARD_CHECK(texture_id_ != 0);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, texture_id_);
+}
+
+cv::Mat getCcvImgFromGlImg(GLuint ogl_texture_id, GLint texWidth, GLint texHeight)
+{
+//  glBindTexture(GL_TEXTURE_2D, ogl_texture_id);
+//  GLenum gl_texture_width, gl_texture_height;
+//
+//  glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, (GLint*)&gl_texture_width);
+//  glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, (GLint*)&gl_texture_height);
+//
+//  unsigned char* gl_texture_bytes = (unsigned char*) malloc(sizeof(unsigned char)*gl_texture_width*gl_texture_height*3);
+//  glGetTexImage(GL_TEXTURE_2D, 0 /* mipmap level */, GL_RGB, GL_UNSIGNED_BYTE, gl_texture_bytes);
+//  //glGetTexImage(GL_TEXTURE_2D, 0 /* mipmap level */, GL_BGR, GL_UNSIGNED_BYTE, gl_texture_bytes);
+//
+//  return cv::Mat(gl_texture_height, gl_texture_width, CV_8UC3, gl_texture_bytes);
+    //int data_size = texWidth * texHeight * 4;
+    static int data_size = texWidth * texHeight * 4;
+    GLubyte* pixels = new GLubyte[data_size];
+
+//    GLuint fbo;
+//    glGenFramebuffers(1, &fbo);
+//    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+//    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ogl_texture_id, 0);
+
+    //glReadPixels(0, 0, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+//    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//    glDeleteFramebuffers(1, &fbo);
+
+    cv::Mat result(texWidth, texHeight, CV_8UC4, pixels);
+
+    return result;
 }
 
 }  // namespace ndk_hello_cardboard

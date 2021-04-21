@@ -504,7 +504,7 @@ namespace nv
         void NVRenderer::RenderCamera() {
             android_app_update_tex_image();
             if (cam_background_ != 0)
-                cam_background_->Render(flip_background_);
+                cam_background_->Render(flip_background_, width_, height_);
         }
 
         void NVRenderer::SwapBuffers() {

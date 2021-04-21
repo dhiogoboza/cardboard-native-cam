@@ -21,9 +21,11 @@
 #include <jni.h>
 
 #include <array>
+#include <opencv2/core/core.hpp>
 #include <vector>
 
-#include <GLES2/gl2.h>
+//#include <GLES2/gl2.h>
+#include <GLES3/gl32.h>
 
 #define LOG_TAG "HelloCardboardApp"
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
@@ -182,6 +184,8 @@ class Texture {
  private:
   GLuint texture_id_;
 };
+
+cv::Mat getCcvImgFromGlImg(GLuint ogl_texture_id, GLint texWidth, GLint texHeight);
 
 }  // namespace ndk_hello_cardboard
 

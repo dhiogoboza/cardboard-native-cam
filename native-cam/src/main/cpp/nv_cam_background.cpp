@@ -8,8 +8,7 @@
 
 #include "nvrenderer.h"
 #include "logger.h"
-
-#include <opencv2/core/core.hpp>
+#include "util.h"
 
 static auto kVertexShader =
         "attribute vec4 vPosition;\n"
@@ -140,10 +139,14 @@ namespace nv
 
         }
 
-        void NVCameraBackground::Render(bool flip) {
+        void NVCameraBackground::Render(bool flip, GLint width, GLint height) {
             glUseProgram(program_id_);
 
-            glBindTexture(GL_TEXTURE_EXTERNAL_OES, renderer_->GetSurfaceTextureId());
+            GLuint texture = renderer_->GetSurfaceTextureId();
+            cv::Mat mat = ndk_hello_cardboard::getCcvImgFromGlImg(texture, width, height);
+
+
+            glBindTexture(GL_TEXTURE_EXTERNAL_OES, texture);
             glActiveTexture(GL_TEXTURE0);
             glUniform1i(texture_handle_, 0);
 
