@@ -13,6 +13,7 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
@@ -81,6 +82,7 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
         public void onOpened(@NonNull CameraDevice cameraDevice) {
             mCameraOpenCloseLock.release();
             mCamera = cameraDevice;
+
             try {
                 createCameraPreviewSession();
             } catch (CameraAccessException e) {
@@ -115,6 +117,8 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
                 mPreviewBuilder.set(CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE, CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE_ON);
                 mPreviewBuilder.set(CaptureRequest.SENSOR_SENSITIVITY, 1600);
                 //mPreviewBuilder.set(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, 0);
+
+                mPreviewBuilder.set(CaptureRequest.CONTROL_EFFECT_MODE, CameraMetadata.CONTROL_EFFECT_MODE_NEGATIVE);
 
                 startPreview(mCaptureSession);
             } catch (CameraAccessException e) {
