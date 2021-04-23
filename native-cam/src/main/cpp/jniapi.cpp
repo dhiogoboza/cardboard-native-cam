@@ -47,7 +47,6 @@ void android_app_update_tex_image()
     std::lock_guard<std::mutex> lk(kMutex);
     if(jni_surfacetexture != 0 && request_update_tex)
     {
-        LOG_INFO("nv log jni update surface texture");
         g_env->CallVoidMethod(jni_surfacetexture, mid_update_tex);
         request_update_tex = false;
     }
@@ -158,6 +157,9 @@ JNIEXPORT void JNICALL NATIVE_METHOD(nativeSwitchViewer)(JNIEnv* jenv, jobject o
     kApp->Render()->SwitchViewer();
 }
 
+JNIEXPORT void JNICALL NATIVE_METHOD(nativeOrientationChanged)(JNIEnv* jenv, jobject obj, jboolean flip){
+    kApp->Render()->FlipBackground(flip);
+}
 
 }
 

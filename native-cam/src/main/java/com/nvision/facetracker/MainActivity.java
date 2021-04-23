@@ -2,20 +2,32 @@ package com.nvision.facetracker;
 
 import android.animation.ObjectAnimator;
 import android.content.DialogInterface;
+import android.content.res.Configuration;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventCallback;
+import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.OrientationEventListener;
+import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.PopupMenu;
+import android.widget.Toast;
 
 import com.nvision.face_tracker_android.R;
 
 import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -24,9 +36,12 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     private CameraRenderView mCameraView;
     private View mCloseButton;
     private View mSettingsButton;
-    AlphaAnimation mIncreaseOpacityAnimation;
-    AlphaAnimation mDecreaseOpacityAnimation;
-    AlphaAnimation mCurrentAnimation;
+    private AlphaAnimation mIncreaseOpacityAnimation;
+    private AlphaAnimation mDecreaseOpacityAnimation;
+    private AlphaAnimation mCurrentAnimation;
+    private OrientationEventListener mOrientationListener = null;
+    private boolean mInitialFlip = false;
+    private Display mDefaultDisplay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +92,23 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         mCameraView.setOnClickListener(this);
 
         toggleButtonsVisibility();
+
+        mDefaultDisplay = getWindowManager().getDefaultDisplay();
+        if (mDefaultDisplay != null) {
+            mInitialFlip = mDefaultDisplay.getRotation()
+                    == Surface.ROTATION_270;
+
+            mOrientationListener = new OrientationEventListener(this, SensorManager.SENSOR_DELAY_UI) {
+                @Override
+                public void onOrientationChanged(int orientation) {
+                    boolean flip = mDefaultDisplay.getRotation() == Surface.ROTATION_270;
+                    if (mInitialFlip != flip) {
+                        mInitialFlip = flip;
+                        CameraRenderView.nativeOrientationChanged(mInitialFlip);
+                    }
+                }
+            };
+        }
     }
 
     private void setImmersiveSticky() {
@@ -92,16 +124,22 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     @Override
     protected void onResume() {
         super.onResume();
-        if (mCameraView != null) {
+
+        if (mOrientationListener != null)
+            mOrientationListener.enable();
+
+        if (mCameraView != null)
             mCameraView.onResume();
-        }
     }
 
     @Override
     protected void onPause() {
-        if (mCameraView != null) {
+        if (mOrientationListener != null)
+            mOrientationListener.disable();
+
+        if (mCameraView != null)
             mCameraView.onPause();
-        }
+
         super.onPause();
     }
 
@@ -137,17 +175,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     }
 
     private void toggleButtonsVisibility() {
-//        Log.d(TAG, "is invisible: " + (mCloseButton.getVisibility() == View.INVISIBLE));
-//        int newVisibility = mCloseButton.getVisibility() == View.INVISIBLE ?
-//                View.VISIBLE : View.INVISIBLE;
-//
-//        mCloseButton.setVisibility(newVisibility);
-//        mSettingsButton.setVisibility(newVisibility);
-//
-//        Log.d(TAG, "new visibility: " + mCloseButton.getVisibility());
-
-        ArrayList<ObjectAnimator> animators = new ArrayList<>(); //ArrayList of ObjectAnimators
-
         mSettingsButton.clearAnimation();
         mCloseButton.clearAnimation();
 

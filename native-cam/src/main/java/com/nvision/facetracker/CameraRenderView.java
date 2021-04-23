@@ -323,7 +323,6 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
         }
 
         try {
-
             mCamManager.openCamera(mCameraId, mCameraDeviceCallback, mCamSessionHandler);
         } catch (CameraAccessException e) {
             e.printStackTrace();
@@ -453,8 +452,13 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
 
     private Surface getPreviewSurface(Size size) {
         if (mSurface == null) {
+            Activity activity = getActivity();
+            boolean flip = activity != null
+                    && activity.getWindowManager().getDefaultDisplay().getRotation()
+                    == Surface.ROTATION_270;
+
             //Get the SurfaceTexture from SurfaceView GL Context
-            mSurfaceTexture = nativeSurfaceTexture(false);//mCameraId == CAMERA_FACE_BACK ? true : false);
+            mSurfaceTexture = nativeSurfaceTexture(flip);
             mSurfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
                 @Override
                 public void onFrameAvailable(SurfaceTexture surfaceTexture) {
@@ -547,4 +551,6 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
     public static native void nativeCreateSurface(Surface surface);
 
     public static native void nativeSwitchViewer();
+
+    public static native void nativeOrientationChanged(boolean flip);
 }
