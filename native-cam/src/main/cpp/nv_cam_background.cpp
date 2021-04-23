@@ -146,7 +146,7 @@ namespace nv
             //cv::Mat mat = ndk_hello_cardboard::getCcvImgFromGlImg(texture, width, height);
 
 
-            glBindTexture(GL_TEXTURE_EXTERNAL_OES, renderer_->GetSurfaceTextureId().);
+            glBindTexture(GL_TEXTURE_EXTERNAL_OES, renderer_->GetSurfaceTextureId());
             glActiveTexture(GL_TEXTURE0);
             glUniform1i(texture_handle_, 0);
 
