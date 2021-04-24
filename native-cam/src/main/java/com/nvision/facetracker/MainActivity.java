@@ -1,13 +1,11 @@
 package com.nvision.facetracker;
 
-import android.animation.ObjectAnimator;
-import android.content.DialogInterface;
-import android.content.res.Configuration;
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
-import android.hardware.SensorEventCallback;
+import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
@@ -20,19 +18,15 @@ import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.PopupMenu;
-import android.widget.Toast;
 
 import com.nvision.face_tracker_android.R;
 
-import java.util.ArrayList;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener, View.OnClickListener, Animation.AnimationListener {
+public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener, View.OnClickListener, Animation.AnimationListener, SensorEventListener {
     private static final String TAG = "MainActivity";
+    private static final float ENABLE_MAGNET_CLICK_THRESHOLD = 100;
+    private static final int ENABLE_MAGNET_CLICK_MS_DELAY = 500;
     private CameraRenderView mCameraView;
     private View mCloseButton;
     private View mSettingsButton;
@@ -40,9 +34,13 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     private AlphaAnimation mDecreaseOpacityAnimation;
     private AlphaAnimation mCurrentAnimation;
     private OrientationEventListener mOrientationListener = null;
-    private boolean mInitialFlip = false;
+    private boolean mLastFlip = false;
     private Display mDefaultDisplay;
+    private SensorManager mSensorManager = null;
+    private Sensor mMagneticSensor = null;
+    private long mMagnetClickedTime = 0;
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,19 +93,25 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
         mDefaultDisplay = getWindowManager().getDefaultDisplay();
         if (mDefaultDisplay != null) {
-            mInitialFlip = mDefaultDisplay.getRotation()
+            mLastFlip = mDefaultDisplay.getRotation()
                     == Surface.ROTATION_270;
 
             mOrientationListener = new OrientationEventListener(this, SensorManager.SENSOR_DELAY_UI) {
                 @Override
                 public void onOrientationChanged(int orientation) {
                     boolean flip = mDefaultDisplay.getRotation() == Surface.ROTATION_270;
-                    if (mInitialFlip != flip) {
-                        mInitialFlip = flip;
-                        CameraRenderView.nativeOrientationChanged(mInitialFlip);
+                    if (mLastFlip != flip) {
+                        mLastFlip = flip;
+                        CameraRenderView.nativeOrientationChanged(mLastFlip);
                     }
                 }
             };
+        }
+
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mMagneticSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        if (mMagneticSensor == null) {
+            Log.w(TAG, "This device doesn't have a magnetic sensor");
         }
     }
 
@@ -130,6 +134,9 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
         if (mCameraView != null)
             mCameraView.onResume();
+
+        if (mMagneticSensor != null)
+            mSensorManager.registerListener(this, mMagneticSensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
@@ -139,6 +146,9 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
         if (mCameraView != null)
             mCameraView.onPause();
+
+        if (mMagneticSensor != null)
+            mSensorManager.unregisterListener(this);
 
         super.onPause();
     }
@@ -153,17 +163,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
     public void closeSample() {
         Log.d(TAG, "Leaving VR sample");
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.closing_app)
-                .setMessage(R.string.closing_app_sure)
-                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        finish();
-                    }
-                })
-                .setNegativeButton(R.string.no, null)
-                .show();
+        finish();
     }
 
     public void showSettings(View view) {
@@ -194,9 +194,9 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         return false;
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public void onClick(View view) {
-        Log.d(TAG, "View clicked");
         switch (view.getId()) {
             case R.id.ui_close_button:
                 closeSample();
@@ -224,6 +224,23 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
     @Override
     public void onAnimationRepeat(Animation animation) {
+
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        if (Math.abs(sensorEvent.values[0]) > ENABLE_MAGNET_CLICK_THRESHOLD) {
+            long current = System.currentTimeMillis();
+            if (current - ENABLE_MAGNET_CLICK_MS_DELAY > mMagnetClickedTime) {
+                mCameraView.performClick();
+
+                mMagnetClickedTime = current;
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
 
     }
 }

@@ -72,7 +72,8 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
     private Size mPreviewSize;
     private int mWidth, mHeight;
 
-    public static int IMAGE_WIDTH = 640, IMAGE_HEIGHT = 480;
+    //public static int IMAGE_WIDTH = 640, IMAGE_HEIGHT = 480;
+    public static int IMAGE_WIDTH = 1280, IMAGE_HEIGHT = 720;
     public static final String CAMERA_FACE_BACK = "" + CameraCharacteristics.LENS_FACING_BACK;
     public static final String CAMERA_FACE_FRONT = "" + CameraCharacteristics.LENS_FACING_FRONT;
 
@@ -109,16 +110,15 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
         public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
             if (null == mCamera) return;
 
-
             mCaptureSession = cameraCaptureSession;
             try {
-                mPreviewBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+                mPreviewBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO);
                 //mPreviewBuilder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_OFF);
                 mPreviewBuilder.set(CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE, CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE_ON);
                 mPreviewBuilder.set(CaptureRequest.SENSOR_SENSITIVITY, 1600);
                 //mPreviewBuilder.set(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, 0);
 
-                mPreviewBuilder.set(CaptureRequest.CONTROL_EFFECT_MODE, CameraMetadata.CONTROL_EFFECT_MODE_NEGATIVE);
+                //mPreviewBuilder.set(CaptureRequest.CONTROL_EFFECT_MODE, CameraMetadata.CONTROL_EFFECT_MODE_NEGATIVE);
 
                 startPreview(mCaptureSession);
             } catch (CameraAccessException e) {
