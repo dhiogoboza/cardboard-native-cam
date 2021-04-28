@@ -157,9 +157,5 @@ JNIEXPORT void JNICALL NATIVE_METHOD(nativeSwitchViewer)(JNIEnv* jenv, jobject o
     kApp->Render()->SwitchViewer();
 }
 
-JNIEXPORT void JNICALL NATIVE_METHOD(nativeOrientationChanged)(JNIEnv* jenv, jobject obj, jboolean flip){
-    kApp->Render()->FlipBackground(flip);
-}
-
 }
 

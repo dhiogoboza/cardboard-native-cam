@@ -462,8 +462,6 @@ namespace nv
         void NVRenderer::DrawFrame() {
             //LOG_INFO("nv log renderer drawframe");
 
-
-
             if (!UpdateDeviceParams()) {
                 return;
             }
@@ -485,6 +483,8 @@ namespace nv
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+            android_app_update_tex_image();
+
             // Draw camera on eye 1
             glViewport(0, 0, width_ / 2, height_);
             RenderCamera();
@@ -502,9 +502,8 @@ namespace nv
         }
 
         void NVRenderer::RenderCamera() {
-            android_app_update_tex_image();
-            if (cam_background_ != 0)
-                cam_background_->Render(flip_background_, width_, height_);
+            if (cam_background_)
+                cam_background_->Render();
         }
 
         void NVRenderer::SwapBuffers() {

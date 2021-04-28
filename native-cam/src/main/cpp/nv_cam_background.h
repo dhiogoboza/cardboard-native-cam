@@ -17,13 +17,12 @@ namespace nv
             NVCameraBackground(NVRenderer *renderer);
             ~NVCameraBackground();
 
-            void Render(bool flip, GLint width, GLint height);
+            void Render();
 
         private:
             NVRenderer *renderer_;
             GLuint  vertex_id_;
             GLuint  uv_id_;
-            GLuint  uv_flip_id;
             GLuint  indice_id_;
             GLuint  program_id_;
             GLuint  position_handle_;

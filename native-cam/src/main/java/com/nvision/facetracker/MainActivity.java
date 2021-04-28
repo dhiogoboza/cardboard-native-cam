@@ -8,11 +8,8 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Display;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.OrientationEventListener;
-import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
@@ -33,9 +30,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     private AlphaAnimation mIncreaseOpacityAnimation;
     private AlphaAnimation mDecreaseOpacityAnimation;
     private AlphaAnimation mCurrentAnimation;
-    private OrientationEventListener mOrientationListener = null;
-    private boolean mLastFlip = false;
-    private Display mDefaultDisplay;
     private SensorManager mSensorManager = null;
     private Sensor mMagneticSensor = null;
     private long mMagnetClickedTime = 0;
@@ -91,23 +85,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
         toggleButtonsVisibility();
 
-        mDefaultDisplay = getWindowManager().getDefaultDisplay();
-        if (mDefaultDisplay != null) {
-            mLastFlip = mDefaultDisplay.getRotation()
-                    == Surface.ROTATION_270;
-
-            mOrientationListener = new OrientationEventListener(this, SensorManager.SENSOR_DELAY_UI) {
-                @Override
-                public void onOrientationChanged(int orientation) {
-                    boolean flip = mDefaultDisplay.getRotation() == Surface.ROTATION_270;
-                    if (mLastFlip != flip) {
-                        mLastFlip = flip;
-                        CameraRenderView.nativeOrientationChanged(mLastFlip);
-                    }
-                }
-            };
-        }
-
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mMagneticSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         if (mMagneticSensor == null) {
@@ -129,9 +106,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     protected void onResume() {
         super.onResume();
 
-        if (mOrientationListener != null)
-            mOrientationListener.enable();
-
         if (mCameraView != null)
             mCameraView.onResume();
 
@@ -141,9 +115,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
     @Override
     protected void onPause() {
-        if (mOrientationListener != null)
-            mOrientationListener.disable();
-
         if (mCameraView != null)
             mCameraView.onPause();
 

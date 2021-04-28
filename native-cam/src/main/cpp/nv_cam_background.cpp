@@ -79,13 +79,6 @@ static const GLfloat kTriangleVertices[] = { // in counterclockwise order:
 //static const GLfloat kUvs[] = {0.0, 1.0, 1.0, 1.0,
 //                               1.0, 0.0, 0.0, 0.0};
 
-static const GLfloat kUvs_flip[] = {
-        1.0f, 0.0f,  // A. left-bottom
-        0.0f, 0.0f,  // B. right-bottom
-        1.0f, 1.0f,  // C. left-top
-        0.0f, 1.0f   // D. right-top
-};
-
 static const GLfloat kUvs[] = {
         0.0f, 1.0f,  // A. left-bottom
         1.0f, 1.0f,  // B. right-bottom
@@ -118,10 +111,6 @@ namespace nv
             glBindBuffer(GL_ARRAY_BUFFER, uv_id_);
             glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*8, kUvs, GL_STATIC_DRAW);
 
-            glGenBuffers(1, &uv_flip_id);
-            glBindBuffer(GL_ARRAY_BUFFER, uv_flip_id);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*8, kUvs_flip, GL_STATIC_DRAW);
-
             glBindBuffer(GL_ARRAY_BUFFER, 0);
 
             glGenBuffers(1, &indice_id_);
@@ -146,12 +135,8 @@ namespace nv
 
         }
 
-        void NVCameraBackground::Render(bool flip, GLint width, GLint height) {
+        void NVCameraBackground::Render() {
             glUseProgram(program_id_);
-
-            //GLuint texture = renderer_->GetSurfaceTextureId();
-            //cv::Mat mat = ndk_hello_cardboard::getCcvImgFromGlImg(texture, width, height);
-
 
             glBindTexture(GL_TEXTURE_EXTERNAL_OES, renderer_->GetSurfaceTextureId());
             glActiveTexture(GL_TEXTURE0);
@@ -159,12 +144,8 @@ namespace nv
 
             glVertexAttribPointer(position_handle_, 2, GL_FLOAT, GL_FALSE, 0, kTriangleVertices);
             glEnableVertexAttribArray(position_handle_);
-            if(flip)
-            {
-                glVertexAttribPointer(uv_handle_, 2, GL_FLOAT, GL_FALSE, 0, kUvs_flip );
-            }else{
-                glVertexAttribPointer(uv_handle_, 2, GL_FLOAT, GL_FALSE, 0, kUvs );
-            }
+
+            glVertexAttribPointer(uv_handle_, 2, GL_FLOAT, GL_FALSE, 0, kUvs);
 
             glEnableVertexAttribArray(uv_handle_);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indice_id_);

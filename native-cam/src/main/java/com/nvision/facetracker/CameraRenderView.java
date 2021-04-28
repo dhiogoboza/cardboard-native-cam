@@ -551,6 +551,4 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
     public static native void nativeCreateSurface(Surface surface);
 
     public static native void nativeSwitchViewer();
-
-    public static native void nativeOrientationChanged(boolean flip);
 }
