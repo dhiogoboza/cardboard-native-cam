@@ -44,6 +44,7 @@ import androidx.core.content.ContextCompat;
 
 public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callback {
 
+    private static final String TAG = "CameraRenderView";
     private WeakReference<Activity> mWeakActivity;
     private CameraManager mCamManager;
     private CameraDevice mCamera;
@@ -520,6 +521,21 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
         } else {
             Log.e("CameraRenderView", "Couldn't find any suitable preview size");
             return choices[0];
+        }
+    }
+
+    public void setEffect(int effect) {
+        if (mPreviewBuilder != null) {
+            mPreviewBuilder.set(CaptureRequest.CONTROL_EFFECT_MODE, CameraMetadata.CONTROL_EFFECT_MODE_OFF);
+            mPreviewBuilder.set(CaptureRequest.CONTROL_EFFECT_MODE, effect);
+
+            try {
+                mCaptureSession.setRepeatingRequest(mPreviewBuilder.build(), mSessionCaptureCallback, mCamSessionHandler);
+            } catch (CameraAccessException e) {
+                Log.e(TAG, "Error setting camera effect", e);
+            }
+        } else {
+            Log.w(TAG, "Preview builder is null");
         }
     }
 

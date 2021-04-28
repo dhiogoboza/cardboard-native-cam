@@ -7,4 +7,14 @@
     <string name="closing_app_sure">Are you sure you want to close this application?</string>
     <string name="accessibility_back">Back</string>
     <string name="accessibility_settings">Settings</string>
+    <string name="choose_effect">Effect</string>
+    <string name="effect_black_and_white">Black and White</string>
+    <string name="effect_negative">Negative</string>
+    <string name="effect_disable">Disable</string>
+    <string name="effect_aqua">Aqua</string>
+    <string name="effect_blackboard">Blackboard</string>
+    <string name="effect_whiteboard">Whiteboard</string>
+    <string name="effect_posterize">Posterize</string>
+    <string name="effect_sepia">Sepia</string>
+    <string name="effect_solarize">Solarize</string>
 </resources>

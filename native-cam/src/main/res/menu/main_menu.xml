@@ -1,5 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/choose_viewer"
+    <item
+        android:id="@+id/choose_viewer"
         android:title="@string/choose_viewer" />
+
+    <item android:title="@string/choose_effect">
+        <menu>
+            <item
+                android:checked="true"
+                android:checkable="true"
+                android:id="@+id/choose_effect_disable"
+                android:title="@string/effect_disable" />
+
+            <item
+                android:checkable="true"
+                android:id="@+id/choose_effect_black_and_white"
+                android:title="@string/effect_black_and_white" />
+
+            <item
+                android:checkable="true"
+                android:id="@+id/choose_effect_negative"
+                android:title="@string/effect_negative" />
+
+            <item
+                android:checkable="true"
+                android:id="@+id/choose_effect_aqua"
+                android:title="@string/effect_aqua" />
+
+            <item
+                android:checkable="true"
+                android:id="@+id/choose_effect_blackboard"
+                android:title="@string/effect_blackboard" />
+
+            <item
+                android:checkable="true"
+                android:id="@+id/choose_effect_whiteboard"
+                android:title="@string/effect_whiteboard" />
+
+            <item
+                android:checkable="true"
+                android:id="@+id/choose_effect_posterize"
+                android:title="@string/effect_posterize" />
+
+            <item
+                android:checkable="true"
+                android:id="@+id/choose_effect_sepia"
+                android:title="@string/effect_sepia" />
+
+            <item
+                android:checkable="true"
+                android:id="@+id/choose_effect_solarize"
+                android:title="@string/effect_solarize" />
+        </menu>
+    </item>
 </menu>

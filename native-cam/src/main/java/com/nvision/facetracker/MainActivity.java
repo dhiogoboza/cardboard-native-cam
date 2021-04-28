@@ -6,6 +6,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.hardware.camera2.CameraMetadata;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuInflater;
@@ -33,6 +34,8 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     private SensorManager mSensorManager = null;
     private Sensor mMagneticSensor = null;
     private long mMagnetClickedTime = 0;
+    private MenuItem mPreviousMenu = null;
+    private PopupMenu mMenuPopup;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -72,9 +75,9 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         });
 
         // Forces screen to max brightness.
-        WindowManager.LayoutParams layout = getWindow().getAttributes();
-        layout.screenBrightness = 1.f;
-        getWindow().setAttributes(layout);
+        //WindowManager.LayoutParams layout = getWindow().getAttributes();
+        //layout.screenBrightness = 1.f;
+        //getWindow().setAttributes(layout);
 
         // Prevents screen from dimming/locking.
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -90,6 +93,13 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         if (mMagneticSensor == null) {
             Log.w(TAG, "This device doesn't have a magnetic sensor");
         }
+
+        mMenuPopup = new PopupMenu(this, mSettingsButton);
+        MenuInflater inflater = mMenuPopup.getMenuInflater();
+        inflater.inflate(R.menu.main_menu, mMenuPopup.getMenu());
+        mMenuPopup.setOnMenuItemClickListener(this);
+
+        mPreviousMenu = mMenuPopup.getMenu().findItem(R.id.choose_effect_disable);
     }
 
     private void setImmersiveSticky() {
@@ -137,12 +147,8 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         finish();
     }
 
-    public void showSettings(View view) {
-        PopupMenu popup = new PopupMenu(this, view);
-        MenuInflater inflater = popup.getMenuInflater();
-        inflater.inflate(R.menu.main_menu, popup.getMenu());
-        popup.setOnMenuItemClickListener(this);
-        popup.show();
+    public void showSettings() {
+        mMenuPopup.show();
     }
 
     private void toggleButtonsVisibility() {
@@ -157,27 +163,53 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
     @Override
     public boolean onMenuItemClick(MenuItem menuItem) {
-        if (menuItem.getItemId() == R.id.choose_viewer) {
+        int itemId = menuItem.getItemId();
+
+        if (itemId == R.id.choose_viewer) {
             CameraRenderView.nativeSwitchViewer();
             return true;
+        } else if (itemId == R.id.choose_effect_disable) {
+            mCameraView.setEffect(CameraMetadata.CONTROL_EFFECT_MODE_OFF);
+        } else if (itemId == R.id.choose_effect_black_and_white) {
+            mCameraView.setEffect(CameraMetadata.CONTROL_EFFECT_MODE_MONO);
+        } else if (itemId == R.id.choose_effect_negative) {
+            mCameraView.setEffect(CameraMetadata.CONTROL_EFFECT_MODE_NEGATIVE);
+        } else if (itemId == R.id.choose_effect_aqua) {
+            mCameraView.setEffect(CameraMetadata.CONTROL_EFFECT_MODE_AQUA);
+        } else if (itemId == R.id.choose_effect_blackboard) {
+            mCameraView.setEffect(CameraMetadata.CONTROL_EFFECT_MODE_BLACKBOARD);
+        } else if (itemId == R.id.choose_effect_whiteboard) {
+            mCameraView.setEffect(CameraMetadata.CONTROL_EFFECT_MODE_WHITEBOARD);
+        } else if (itemId == R.id.choose_effect_posterize) {
+            mCameraView.setEffect(CameraMetadata.CONTROL_EFFECT_MODE_POSTERIZE);
+        } else if (itemId == R.id.choose_effect_sepia) {
+            mCameraView.setEffect(CameraMetadata.CONTROL_EFFECT_MODE_SEPIA);
+        } else if (itemId == R.id.choose_effect_solarize) {
+            mCameraView.setEffect(CameraMetadata.CONTROL_EFFECT_MODE_SOLARIZE);
+        } else {
+            return false;
         }
 
-        return false;
+        if (mPreviousMenu != null) {
+            mPreviousMenu.setChecked(false);
+        }
+        menuItem.setChecked(true);
+        mPreviousMenu = menuItem;
+
+        return true;
     }
 
-    @SuppressLint("NonConstantResourceId")
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.ui_close_button:
-                closeSample();
-                break;
-            case R.id.ui_settings_button:
-                showSettings(view);
-                break;
-            case R.id.camera_view:
+        int id = view.getId();
+        if (id == R.id.ui_close_button) {
+            closeSample();
+        } else if (id == R.id.ui_settings_button) {
+            if (mCurrentAnimation == mIncreaseOpacityAnimation)
                 toggleButtonsVisibility();
-                break;
+            showSettings();
+        } else if (id == R.id.camera_view) {
+            toggleButtonsVisibility();
         }
     }
 
