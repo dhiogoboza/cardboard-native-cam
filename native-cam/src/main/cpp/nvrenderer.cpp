@@ -485,13 +485,19 @@ namespace nv
 
             android_app_update_tex_image();
 
-            // Draw camera on eye 1
-            glViewport(0, 0, width_ / 2, height_);
-            RenderCamera();
+            if (cam_background_) {
+                cam_background_->BeforeRender();
 
-            // Draw camera on eye 2
-            glViewport(width_ / 2, 0, width_ / 2, height_);
-            RenderCamera();
+                // Draw camera on eye 1
+                glViewport(0, 0, width_ / 2, height_);
+                cam_background_->Render();
+
+                // Draw camera on eye 2
+                glViewport(width_ / 2, 0, width_ / 2, height_);
+                cam_background_->Render();
+
+                cam_background_->AfterRender();
+            }
 
             // Render
             glViewport(0, 0, width_, height_);
@@ -499,11 +505,6 @@ namespace nv
                     distortion_renderer_, /* target_display = */ 0, /* x = */ 0, /* y = */ 0,
                     width_, height_, &left_eye_texture_description_,
                     &right_eye_texture_description_);
-        }
-
-        void NVRenderer::RenderCamera() {
-            if (cam_background_)
-                cam_background_->Render();
         }
 
         void NVRenderer::SwapBuffers() {

@@ -60,8 +60,6 @@ namespace nv
 
             void DrawFrame();
 
-            void RenderCamera();
-
             void SwapBuffers();
 
             void InitCardboard();

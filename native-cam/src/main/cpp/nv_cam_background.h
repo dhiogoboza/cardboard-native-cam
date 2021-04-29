@@ -17,7 +17,9 @@ namespace nv
             NVCameraBackground(NVRenderer *renderer);
             ~NVCameraBackground();
 
+            void BeforeRender();
             void Render();
+            void AfterRender();
 
         private:
             NVRenderer *renderer_;

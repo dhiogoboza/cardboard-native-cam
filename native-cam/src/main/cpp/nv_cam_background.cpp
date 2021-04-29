@@ -135,7 +135,7 @@ namespace nv
 
         }
 
-        void NVCameraBackground::Render() {
+        void NVCameraBackground::BeforeRender() {
             glUseProgram(program_id_);
 
             glBindTexture(GL_TEXTURE_EXTERNAL_OES, renderer_->GetSurfaceTextureId());
@@ -149,8 +149,13 @@ namespace nv
 
             glEnableVertexAttribArray(uv_handle_);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indice_id_);
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+        }
 
+        void NVCameraBackground::Render() {
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+        }
+
+        void NVCameraBackground::AfterRender() {
             glBindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         }
