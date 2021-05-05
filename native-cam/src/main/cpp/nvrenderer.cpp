@@ -496,6 +496,7 @@ namespace nv
                 glViewport(width_ / 2, 0, width_ / 2, height_);
                 cam_background_->Render();
 
+                glViewport(0, 0, width_, height_);
                 cam_background_->AfterRender();
             }
 
@@ -581,6 +582,10 @@ namespace nv
                     program = 0;
                 }
             }
+
+
+
+
             return program;
         }
 

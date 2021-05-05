@@ -28,8 +28,6 @@
 #include <sstream>
 #include <string>
 
-#include <GLES3/gl32.h>
-
 namespace ndk_hello_cardboard {
 
 namespace {
@@ -575,6 +573,83 @@ cv::Mat getCcvImgFromGlImg(GLuint ogl_texture_id, GLint texWidth, GLint texHeigh
     cv::Mat result(texWidth, texHeight, CV_8UC4, pixels);
 
     return result;
+}
+
+GLuint loadShader(GLenum shaderType, const char* shaderSource)
+{
+  GLuint shader = glCreateShader(shaderType);
+  if (shader)
+  {
+    glShaderSource(shader, 1, &shaderSource, NULL);
+    glCompileShader(shader);
+    GLint compiled = 0;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
+    if (!compiled)
+    {
+      GLint infoLen = 0;
+      glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
+      if (infoLen)
+      {
+        char * buf = new char[infoLen];
+        if (buf)
+        {
+          glGetShaderInfoLog(shader, infoLen, NULL, buf);
+          LOGE("Could not Compile Shader %d:\n%s\n", shaderType, buf);
+          delete[] buf;
+        }
+        glDeleteShader(shader);
+        shader = 0;
+      }
+    }
+  }
+  return shader;
+}
+
+GLuint createProgram(GLuint program, const char* vertexSource, const char * fragmentSource)
+{
+  LOGD("Loading vertex shader");
+  GLuint vertexShader = loadShader(GL_VERTEX_SHADER, vertexSource);
+  if (!vertexShader)
+  {
+    LOGD("Vertex shader load failure!");
+    return 0;
+  }
+  LOGD("Loading fragment shader");
+  GLuint fragmentShader = loadShader(GL_FRAGMENT_SHADER, fragmentSource);
+  if (!fragmentShader)
+  {
+    LOGD("Fragment shader load failure!");
+    return 0;
+  }
+  //GLuint program = glCreateProgram();
+
+  if (program)
+  {
+    glAttachShader(program, vertexShader);
+    glAttachShader(program, fragmentShader);
+    glLinkProgram(program);
+    GLint linkStatus = GL_FALSE;
+    glGetProgramiv(program, GL_LINK_STATUS, &linkStatus);
+
+    if (linkStatus != GL_TRUE)
+    {
+      GLint bufLength = 0;
+      glGetProgramiv(program, GL_INFO_LOG_LENGTH, &bufLength);
+      if (bufLength)
+      {
+        char* buf = new char[bufLength];
+        if (buf)
+        {
+          glGetProgramInfoLog(program, bufLength, NULL, buf);
+          LOGE("Could not link program:\n%s\n", buf);
+          delete[] buf;
+        }
+      }
+      glDeleteProgram(program);
+      program = 0;
+    }
+  }
+  return program;
 }
 
 }  // namespace ndk_hello_cardboard

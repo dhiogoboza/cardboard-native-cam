@@ -143,6 +143,11 @@ JNIEXPORT jobject JNICALL NATIVE_METHOD(nativeSurfaceTexture)(JNIEnv* jenv, jobj
 
 }
 
+JNIEXPORT jint JNICALL NATIVE_METHOD(getNativeTexture)(JNIEnv* env, jobject obj)
+{
+    return kApp->Render()->GetSurfaceTextureId();
+}
+
 JNIEXPORT void JNICALL NATIVE_METHOD(nativeDestroyTexture)(JNIEnv* jenv, jobject obj){
     jenv->DeleteGlobalRef(jni_surfacetexture);
     jni_surfacetexture = 0;

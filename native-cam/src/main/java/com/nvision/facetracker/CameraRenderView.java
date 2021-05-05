@@ -20,6 +20,8 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
+import android.opengl.GLES11Ext;
+import android.opengl.GLES20;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.AttributeSet;
@@ -53,6 +55,8 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
     private CaptureRequest.Builder mPreviewBuilder;
     private CameraCaptureSession mCaptureSession;
     private CaptureRequest.Builder mCaptureRequestBuilder;
+
+    private CameraFilter selectedFilter = null;
 
     private ImageReader mImageReader;
 
@@ -171,10 +175,14 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
 
     public CameraRenderView(Context context) {
         this(context, null);
+        selectedFilter = new ChromaticAberrationFilter(context);
+        selectedFilter.onAttach();
     }
 
     public CameraRenderView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        selectedFilter = new ChromaticAberrationFilter(context);
+        selectedFilter.onAttach();
     }
 
 
@@ -451,7 +459,7 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
     }
 
 
-    private Surface getPreviewSurface(Size size) {
+    private Surface getPreviewSurface(final Size size) {
         if (mSurface == null) {
             Activity activity = getActivity();
             boolean flip = activity != null
@@ -463,11 +471,22 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
             mSurfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
                 @Override
                 public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+//                    Log.d(TAG, "desenhando");
+//
+//                    int cameraTextureId = getNativeTexture();//MyGLUtils.genTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
+//                    selectedFilter.draw(cameraTextureId, size.getWidth(), size.getHeight());
                     nativeRequestUpdateTexture();
+                    //GLES20.glFlush();
                 }
             });
             //This is the output surface we need to start preview
             mSurface = new Surface(mSurfaceTexture);
+
+            // Draw camera preview
+            //if (selectedFilter != null) {
+//            int cameraTextureId = getNativeTexture();//MyGLUtils.genTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
+//            selectedFilter.draw(cameraTextureId, size.getWidth(), size.getHeight());
+            //}
         }
 
         mSurfaceTexture.setDefaultBufferSize(size.getWidth(), size.getHeight());
@@ -559,6 +578,8 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
     public static native void nativeDestroyApp();
 
     public static native SurfaceTexture nativeSurfaceTexture(boolean flip);
+
+    public static native int getNativeTexture();
 
     public static native void nativeRequestUpdateTexture();
 

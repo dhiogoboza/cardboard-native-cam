@@ -43,7 +43,8 @@ target_link_libraries( # Specifies the target library.
                        # included in the NDK.
                        android
                        EGL
-                       GLESv3
+                       #GLESv3
+                       GLESv2
                        log
                        ${libs_dir}/jni/${ANDROID_ABI}/libcardboard_api.so
                        ${OpenCV_DIR}/libs/${ANDROID_ABI}/libopencv_java4.so

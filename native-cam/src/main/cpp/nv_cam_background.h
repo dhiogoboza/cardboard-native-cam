@@ -4,8 +4,8 @@
 
 #ifndef FACE_TRACKER_ANDROID_NV_CAM_BACKGROUND_H
 #define FACE_TRACKER_ANDROID_NV_CAM_BACKGROUND_H
-//#include <GLES2/gl2.h>
-#include <GLES3/gl32.h>
+#include <GLES2/gl2.h>
+//#include <GLES3/gl32.h>
 
 namespace nv
 {
@@ -31,6 +31,8 @@ namespace nv
             GLuint  uv_handle_;
             GLuint  texture_handle_;
 
+            GLuint  effect_program_id;
+            GLuint  texture_effect;
         };
     }
 
