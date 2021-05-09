@@ -18,7 +18,7 @@ namespace nv
             ~NVCameraBackground();
 
             void BeforeRender();
-            void Render(int eye);
+            void Render();
             void AfterRender();
 
         private:
@@ -28,6 +28,7 @@ namespace nv
             GLuint  indice_id_;
             GLuint  program_id_;
             GLuint  position_handle_;
+            GLuint  resolution_handle_;
             GLuint  uv_handle_;
             GLuint  texture_handle_;
 
