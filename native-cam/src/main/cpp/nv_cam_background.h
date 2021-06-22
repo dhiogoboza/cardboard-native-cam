@@ -1,42 +1,29 @@
-//
-// Created by root on 18-8-10.
-//
+#pragma once
 
-#ifndef FACE_TRACKER_ANDROID_NV_CAM_BACKGROUND_H
-#define FACE_TRACKER_ANDROID_NV_CAM_BACKGROUND_H
-//#include <GLES2/gl2.h>
 #include <GLES3/gl32.h>
 
-namespace nv
-{
-    namespace render
-    {
-        class NVRenderer;
-        class NVCameraBackground {
-        public:
-            NVCameraBackground(NVRenderer *renderer);
-            ~NVCameraBackground();
+namespace nv::render {
 
-            void BeforeRender();
-            void Render();
-            void AfterRender();
+class NVRenderer;
+class NVCameraBackground {
+public:
+    NVCameraBackground(NVRenderer *renderer);
+    ~NVCameraBackground();
 
-        private:
-            NVRenderer *renderer_;
-            GLuint  vertex_id_;
-            GLuint  uv_id_;
-            GLuint  indice_id_;
-            GLuint  program_id_;
-            GLuint  position_handle_;
-            GLuint  resolution_handle_;
-            GLuint  uv_handle_;
-            GLuint  texture_handle_;
+    void BeforeRender();
+    void Render();
+    void AfterRender();
 
-            GLuint  effect_program_id;
-            GLuint  texture_effect;
-        };
-    }
+private:
+    NVRenderer *renderer_;
+    GLuint  vertex_id_;
+    GLuint  uv_id_;
+    GLuint  index_id_;
+    GLuint  program_id_;
+    GLuint  position_handle_;
+    GLuint  resolution_handle_;
+    GLuint  uv_handle_;
+    GLuint  texture_handle_;
+};
 
-}
-
-#endif //FACE_TRACKER_ANDROID_NV_CAM_BACKGROUND_H
+} // namespace nv::render
