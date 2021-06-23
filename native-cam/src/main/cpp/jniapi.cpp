@@ -4,6 +4,7 @@
 #include "cardboard.h"
 #include "jniapi.h"
 #include "logger.h"
+#include "nv_cam_background.h"
 #include "nvapp.h"
 #include "nvrenderer.h"
 #include "global_interface.h"
@@ -80,6 +81,25 @@ void JNI_OnUnload(JavaVM *vm, void *reserved)
 
 }
 
+std::string jstring2string(JNIEnv *env, jstring jStr) {
+    if (!jStr)
+        return "";
+
+    jclass stringClass = env->GetObjectClass(jStr);
+    jmethodID getBytes = env->GetMethodID(stringClass, "getBytes", "(Ljava/lang/String;)[B");
+    auto stringJbytes = (jbyteArray) env->CallObjectMethod(jStr, getBytes, env->NewStringUTF("UTF-8"));
+
+    auto length = (size_t) env->GetArrayLength(stringJbytes);
+    jbyte* pBytes = env->GetByteArrayElements(stringJbytes, nullptr);
+
+    std::string ret = std::string((char *)pBytes, length);
+    env->ReleaseByteArrayElements(stringJbytes, pBytes, JNI_ABORT);
+
+    env->DeleteLocalRef(stringJbytes);
+    env->DeleteLocalRef(stringClass);
+    return ret;
+}
+
 JNIEXPORT void JNICALL NATIVE_METHOD(nativeCreateApp)(JNIEnv* jenv, jobject obj, jobject context)
 {
     Cardboard_initializeAndroid(g_vm, context);
@@ -126,6 +146,11 @@ JNIEXPORT void JNICALL NATIVE_METHOD(nativeSetSurface)(JNIEnv* jenv, jobject obj
         LOG_INFO("nv log native release surface window ");
         kWindow = 0;
     }
+}
+
+JNIEXPORT void JNICALL NATIVE_METHOD(nativeSetShader)(JNIEnv* jenv, jobject obj, jstring shader)
+{
+    kApp->Render()->SetShader(jstring2string(jenv, shader));
 }
 
 JNIEXPORT jobject JNICALL NATIVE_METHOD(nativeSurfaceTexture)(JNIEnv* jenv, jobject obj, jboolean flip)

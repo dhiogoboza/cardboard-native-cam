@@ -45,6 +45,10 @@ namespace nv
 
             void SwitchViewer();
 
+            NVCameraBackground *Camera();
+
+            void SetShader(const std::string &shader);
+
         protected:
             bool Initialise();
 
@@ -78,7 +82,8 @@ namespace nv
                 MSG_WINDOW_CREATE,
                 MSG_WINDOW_UPDATE,
                 MSG_WINDOW_DESTROY,
-                MSG_LOOP_EXIT
+                MSG_LOOP_EXIT,
+                MSG_UPDATE_SHADER
             };
 
             enum RenderMessage msg_;
@@ -100,12 +105,13 @@ namespace nv
             int width_;
             int height_;
 
+            std::string shader_;
+
             GLuint surface_texture_id_;
             bool flip_background_;
 
             bool window_init_;
             bool pause_;
-
 
             // Cardboard related variables
             CardboardHeadTracker* head_tracker_;

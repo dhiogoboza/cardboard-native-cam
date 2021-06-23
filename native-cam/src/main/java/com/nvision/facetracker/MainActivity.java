@@ -6,7 +6,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.hardware.camera2.CameraMetadata;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuInflater;
@@ -18,6 +17,9 @@ import android.view.animation.Animation;
 import android.widget.PopupMenu;
 
 import com.nvision.face_tracker_android.R;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -36,6 +38,14 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     private long mMagnetClickedTime = 0;
     private MenuItem mPreviousMenu = null;
     private PopupMenu mMenuPopup;
+
+    private final Map<Integer, Integer> mEffectsMap = new HashMap<Integer, Integer>(){{
+        put(R.id.choose_effect_disable, R.raw.original);
+        put(R.id.choose_effect_cartoon, R.raw.cartoon);
+        put(R.id.choose_effect_gaussian, R.raw.gaussian);
+        put(R.id.choose_effect_nostalgia, R.raw.nostalgia);
+        put(R.id.choose_effect_pixelize, R.raw.pixelize);
+    }};
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -168,27 +178,13 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         if (itemId == R.id.choose_viewer) {
             CameraRenderView.nativeSwitchViewer();
             return true;
-        } else if (itemId == R.id.choose_effect_disable) {
-            mCameraView.setEffect(CameraMetadata.CONTROL_EFFECT_MODE_OFF);
-        } else if (itemId == R.id.choose_effect_black_and_white) {
-            mCameraView.setEffect(CameraMetadata.CONTROL_EFFECT_MODE_MONO);
-        } else if (itemId == R.id.choose_effect_negative) {
-            mCameraView.setEffect(CameraMetadata.CONTROL_EFFECT_MODE_NEGATIVE);
-        } else if (itemId == R.id.choose_effect_aqua) {
-            mCameraView.setEffect(CameraMetadata.CONTROL_EFFECT_MODE_AQUA);
-        } else if (itemId == R.id.choose_effect_blackboard) {
-            mCameraView.setEffect(CameraMetadata.CONTROL_EFFECT_MODE_BLACKBOARD);
-        } else if (itemId == R.id.choose_effect_whiteboard) {
-            mCameraView.setEffect(CameraMetadata.CONTROL_EFFECT_MODE_WHITEBOARD);
-        } else if (itemId == R.id.choose_effect_posterize) {
-            mCameraView.setEffect(CameraMetadata.CONTROL_EFFECT_MODE_POSTERIZE);
-        } else if (itemId == R.id.choose_effect_sepia) {
-            mCameraView.setEffect(CameraMetadata.CONTROL_EFFECT_MODE_SEPIA);
-        } else if (itemId == R.id.choose_effect_solarize) {
-            mCameraView.setEffect(CameraMetadata.CONTROL_EFFECT_MODE_SOLARIZE);
-        } else {
+        }
+
+        if (!mEffectsMap.containsKey(itemId)) {
             return false;
         }
+
+        mCameraView.setEffect(mEffectsMap.get(itemId));
 
         if (mPreviousMenu != null) {
             mPreviousMenu.setChecked(false);

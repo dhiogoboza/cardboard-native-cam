@@ -219,11 +219,9 @@ namespace nv
         }
 
         void NVRenderer::SetWindow(ANativeWindow *window) {
-            if(window)
-            {
+            if(window) {
                 window_ = window;
-                if(window_init_)
-                {
+                if(window_init_) {
                     msg_ = MSG_WINDOW_UPDATE;
                     return;
                 }
@@ -236,7 +234,7 @@ namespace nv
                 cond_.wait(lk);
                 lk.unlock();
                 LOG_INFO("nv log renderer unblock ui thread");
-            }else{
+            } else {
                 msg_ = MSG_WINDOW_DESTROY;
             }
 
@@ -371,6 +369,15 @@ namespace nv
             CardboardQrCode_scanQrCodeAndSaveDeviceParams();
         }
 
+        NVCameraBackground *NVRenderer::Camera() {
+            return cam_background_;
+        }
+
+        void NVRenderer::SetShader(const std::string &shader) {
+            shader_ = shader;
+            msg_ = MSG_UPDATE_SHADER;
+        }
+
         void NVRenderer::FlipBackground(bool flip) {
             flip_background_ = flip;
         }
@@ -419,8 +426,6 @@ namespace nv
             msg_ = MSG_NONE;
             return true;
         }
-
-
 
         void NVRenderer::ShutDown() {
 
@@ -584,24 +589,18 @@ namespace nv
             return program;
         }
 
-
         void NVRenderer::_renderLoop() {
             bool run = true;
-            while(run)
-            {
-                switch (msg_)
-                {
+            while (run) {
+                switch (msg_) {
                     case MSG_WINDOW_CREATE:
-                        if(!window_init_)
-                        {
-                            if(!Initialise())
-                            {
+                        if (!window_init_) {
+                            if (!Initialise()) {
                                 run = false;
                             }
 
-                        }else{
-                            if(WindowRestore())
-                            {
+                        } else {
+                            if (WindowRestore()) {
                                 run = false;
                             }
                         }
@@ -615,12 +614,15 @@ namespace nv
                     case MSG_LOOP_EXIT:
                         run = false;
                         break;
+                    case MSG_UPDATE_SHADER:
+                        cam_background_->SetShader(shader_);
+                        msg_ = MSG_NONE;
+                        break;
                     default:
                         break;
                 }
 
-                if(window_init_ && !pause_)
-                {
+                if (window_init_ && !pause_) {
                     DrawFrame();
                     SwapBuffers();
                 }

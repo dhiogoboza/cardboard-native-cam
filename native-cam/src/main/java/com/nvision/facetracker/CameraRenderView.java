@@ -5,6 +5,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.ImageFormat;
 import android.graphics.Point;
 import android.graphics.SurfaceTexture;
@@ -22,6 +23,7 @@ import android.media.Image;
 import android.media.ImageReader;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Size;
@@ -29,6 +31,11 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.nvision.face_tracker_android.R;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,6 +46,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RawRes;
 import androidx.core.content.ContextCompat;
 
 
@@ -118,8 +126,6 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
                 mPreviewBuilder.set(CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE, CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE_ON);
                 mPreviewBuilder.set(CaptureRequest.SENSOR_SENSITIVITY, 1600);
                 //mPreviewBuilder.set(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, 0);
-
-                //mPreviewBuilder.set(CaptureRequest.CONTROL_EFFECT_MODE, CameraMetadata.CONTROL_EFFECT_MODE_NEGATIVE);
 
                 startPreview(mCaptureSession);
             } catch (CameraAccessException e) {
@@ -524,10 +530,20 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
         }
     }
 
-    public void setEffect(int effect) {
+    public void setEffect(@RawRes int shaderId) {
         if (mPreviewBuilder != null) {
-            mPreviewBuilder.set(CaptureRequest.CONTROL_EFFECT_MODE, CameraMetadata.CONTROL_EFFECT_MODE_OFF);
-            mPreviewBuilder.set(CaptureRequest.CONTROL_EFFECT_MODE, effect);
+            String shaderStr = getStringFromRaw(shaderId);
+
+            if (TextUtils.isEmpty(shaderStr)) {
+                Log.e(TAG, "Empty shader");
+                return;
+            }
+
+            Log.d(TAG, "shaderStr: " + shaderStr);
+
+            nativePauseApp();
+            nativeSetShader(shaderStr);
+            nativeResumeApp();
 
             try {
                 mCaptureSession.setRepeatingRequest(mPreviewBuilder.build(), mSessionCaptureCallback, mCamSessionHandler);
@@ -537,6 +553,23 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
         } else {
             Log.w(TAG, "Preview builder is null");
         }
+    }
+
+    private String getStringFromRaw(@RawRes int shaderId) {
+        try (InputStream is = getContext().getResources().openRawResource(shaderId)) {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            int i = is.read();
+            while (i != -1) {
+                byteArrayOutputStream.write(i);
+                i = is.read();
+            }
+
+            return byteArrayOutputStream.toString();
+        } catch (IOException e) {
+            Log.e(TAG, "Error reading raw effect", e);
+        }
+
+        return "";
     }
 
 
@@ -553,6 +586,8 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
     public static native void nativeResumeApp();
 
     public static native void nativeSetSurface(Surface surface);
+
+    public static native void nativeSetShader(String shaderStr);
 
     public static native void nativePauseApp();
 

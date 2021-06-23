@@ -14,43 +14,23 @@
 
             <item
                 android:checkable="true"
-                android:id="@+id/choose_effect_black_and_white"
-                android:title="@string/effect_black_and_white" />
+                android:id="@+id/choose_effect_cartoon"
+                android:title="@string/effect_cartoon" />
 
             <item
                 android:checkable="true"
-                android:id="@+id/choose_effect_negative"
-                android:title="@string/effect_negative" />
+                android:id="@+id/choose_effect_gaussian"
+                android:title="@string/effect_gaussian" />
 
             <item
                 android:checkable="true"
-                android:id="@+id/choose_effect_aqua"
-                android:title="@string/effect_aqua" />
+                android:id="@+id/choose_effect_nostalgia"
+                android:title="@string/effect_nostalgia" />
 
             <item
                 android:checkable="true"
-                android:id="@+id/choose_effect_blackboard"
-                android:title="@string/effect_blackboard" />
-
-            <item
-                android:checkable="true"
-                android:id="@+id/choose_effect_whiteboard"
-                android:title="@string/effect_whiteboard" />
-
-            <item
-                android:checkable="true"
-                android:id="@+id/choose_effect_posterize"
-                android:title="@string/effect_posterize" />
-
-            <item
-                android:checkable="true"
-                android:id="@+id/choose_effect_sepia"
-                android:title="@string/effect_sepia" />
-
-            <item
-                android:checkable="true"
-                android:id="@+id/choose_effect_solarize"
-                android:title="@string/effect_solarize" />
+                android:id="@+id/choose_effect_pixelize"
+                android:title="@string/effect_pixelize" />
         </menu>
     </item>
 </menu>

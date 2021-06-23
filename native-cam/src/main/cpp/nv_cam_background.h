@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GLES3/gl32.h>
+#include <string>
 
 namespace nv::render {
 
@@ -13,6 +14,8 @@ public:
     void BeforeRender();
     void Render();
     void AfterRender();
+
+    void SetShader(const std::string &shader);
 
 private:
     NVRenderer *renderer_;

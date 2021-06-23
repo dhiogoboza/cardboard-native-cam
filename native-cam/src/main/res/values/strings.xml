@@ -17,4 +17,8 @@
     <string name="effect_posterize">Posterize</string>
     <string name="effect_sepia">Sepia</string>
     <string name="effect_solarize">Solarize</string>
+    <string name="effect_cartoon">Cartoon</string>
+    <string name="effect_gaussian">Gaussian</string>
+    <string name="effect_nostalgia">Nostalgia</string>
+    <string name="effect_pixelize">Pixelize</string>
 </resources>
