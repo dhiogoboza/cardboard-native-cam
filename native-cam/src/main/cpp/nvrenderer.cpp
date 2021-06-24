@@ -1,4 +1,5 @@
 #include <thread>
+#include <utility>
 #include <stdlib.h>
 #include <android/native_window.h>
 
@@ -33,7 +34,8 @@ namespace nv
 {
     namespace render
     {
-        NVRenderer::NVRenderer():
+        NVRenderer::NVRenderer(ndk_hello_cardboard::VRConfigs configs):
+                vr_configs_(std::move(configs)),
                 msg_(MSG_NONE),
                 display_(0),
                 surface_(0),
@@ -335,7 +337,7 @@ namespace nv
             //surfaceTexture Id Used for rendering camera preview
             CreateSurfaceTextureId();
             //Create camera background
-            cam_background_ = new NVCameraBackground(this);
+            cam_background_ = new NVCameraBackground(this, vr_configs_);
 
             msg_ = MSG_NONE;
 
@@ -373,9 +375,9 @@ namespace nv
             return cam_background_;
         }
 
-        void NVRenderer::SetShader(const std::string &shader) {
-            shader_ = shader;
-            msg_ = MSG_UPDATE_SHADER;
+        void NVRenderer::SetConfigs(ndk_hello_cardboard::VRConfigs configs) {
+            vr_configs_ = std::move(configs);
+            msg_ = MSG_UPDATE_CONFIGS;
         }
 
         void NVRenderer::FlipBackground(bool flip) {
@@ -614,8 +616,8 @@ namespace nv
                     case MSG_LOOP_EXIT:
                         run = false;
                         break;
-                    case MSG_UPDATE_SHADER:
-                        cam_background_->SetShader(shader_);
+                    case MSG_UPDATE_CONFIGS:
+                        cam_background_->SetConfigs(vr_configs_);
                         msg_ = MSG_NONE;
                         break;
                     default:

@@ -8,6 +8,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,9 +19,13 @@ import android.widget.PopupMenu;
 
 import com.nvision.face_tracker_android.R;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import androidx.annotation.RawRes;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener, View.OnClickListener, Animation.AnimationListener, SensorEventListener {
@@ -39,12 +44,20 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     private MenuItem mPreviousMenu = null;
     private PopupMenu mMenuPopup;
 
-    private final Map<Integer, Integer> mEffectsMap = new HashMap<Integer, Integer>(){{
-        put(R.id.choose_effect_disable, R.raw.original);
-        put(R.id.choose_effect_cartoon, R.raw.cartoon);
-        put(R.id.choose_effect_gaussian, R.raw.gaussian);
-        put(R.id.choose_effect_nostalgia, R.raw.nostalgia);
-        put(R.id.choose_effect_pixelize, R.raw.pixelize);
+    public enum EffectType {
+        NONE,
+        CARTOON,
+        GAUSSIAN,
+        NOSTALGIA,
+        PIXELIZE
+    }
+
+    private final Map<Integer, Pair<Integer, EffectType>> mEffectsMap = new HashMap<Integer, Pair<Integer, EffectType>>(){{
+        put(R.id.choose_effect_disable, new Pair<>(R.raw.original, EffectType.NONE));
+        put(R.id.choose_effect_cartoon, new Pair<>(R.raw.cartoon, EffectType.CARTOON));
+        put(R.id.choose_effect_gaussian, new Pair<>(R.raw.gaussian, EffectType.GAUSSIAN));
+        put(R.id.choose_effect_nostalgia, new Pair<>(R.raw.nostalgia, EffectType.NOSTALGIA));
+        put(R.id.choose_effect_pixelize, new Pair<>(R.raw.pixelize, EffectType.PIXELIZE));
     }};
 
     @SuppressLint("ClickableViewAccessibility")
@@ -92,8 +105,32 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         // Prevents screen from dimming/locking.
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        mMenuPopup = new PopupMenu(this, mSettingsButton);
+        MenuInflater inflater = mMenuPopup.getMenuInflater();
+        inflater.inflate(R.menu.main_menu, mMenuPopup.getMenu());
+        mMenuPopup.setOnMenuItemClickListener(this);
+
+        mPreviousMenu = mMenuPopup.getMenu().findItem(R.id.choose_effect_disable);
+
+        // Get last used effect
+        EffectType effectType = ConfigUtils.getLastEffect(this);
+        String shader = "";
+        Log.d(TAG, "Restoring last used effect: " + effectType);
+        for (Map.Entry<Integer, Pair<Integer, EffectType>> item : mEffectsMap.entrySet()) {
+            if (item.getValue().second == effectType) {
+                shader = getStringFromRaw(item.getValue().first);
+                MenuItem menu = mMenuPopup.getMenu().findItem(item.getKey());
+                if (menu != null) {
+                    mPreviousMenu = menu;
+                }
+                break;
+            }
+        }
+
+        mPreviousMenu.setChecked(true);
+
         mCameraView = findViewById(R.id.camera_view);
-        mCameraView.init(this);
+        mCameraView.init(this, shader);
         mCameraView.setOnClickListener(this);
 
         toggleButtonsVisibility();
@@ -103,13 +140,23 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         if (mMagneticSensor == null) {
             Log.w(TAG, "This device doesn't have a magnetic sensor");
         }
+    }
 
-        mMenuPopup = new PopupMenu(this, mSettingsButton);
-        MenuInflater inflater = mMenuPopup.getMenuInflater();
-        inflater.inflate(R.menu.main_menu, mMenuPopup.getMenu());
-        mMenuPopup.setOnMenuItemClickListener(this);
+    private String getStringFromRaw(@RawRes int shaderId) {
+        try (InputStream is = getResources().openRawResource(shaderId)) {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            int i = is.read();
+            while (i != -1) {
+                byteArrayOutputStream.write(i);
+                i = is.read();
+            }
 
-        mPreviousMenu = mMenuPopup.getMenu().findItem(R.id.choose_effect_disable);
+            return byteArrayOutputStream.toString();
+        } catch (IOException e) {
+            Log.e(TAG, "Error reading raw effect", e);
+        }
+
+        return "";
     }
 
     private void setImmersiveSticky() {
@@ -184,7 +231,10 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             return false;
         }
 
-        mCameraView.setEffect(mEffectsMap.get(itemId));
+        Pair<Integer, EffectType> effect = mEffectsMap.get(itemId);
+        if (mCameraView.setEffect(getStringFromRaw(effect.first))) {
+            ConfigUtils.saveCurrentEffect(this, effect.second);
+        }
 
         if (mPreviousMenu != null) {
             mPreviousMenu.setChecked(false);

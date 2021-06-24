@@ -39,6 +39,17 @@
 
 namespace ndk_hello_cardboard {
 
+struct VRConfigs {
+    VRConfigs(const std::string &_shader)
+            : shader(_shader)
+    {
+    }
+
+    std::string shader;
+    int screenWidth;
+    int screenHeight;
+};
+
 class Matrix4x4 {
  public:
   float m[4][4];

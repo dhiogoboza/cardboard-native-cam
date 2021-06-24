@@ -2,6 +2,7 @@
 #define NV_APP_H_
 
 #include <thread>
+#include "util.h"
 
 namespace nv
 {
@@ -11,7 +12,7 @@ namespace nv
     }
     class NVApp{
     public:
-        NVApp();
+        NVApp(ndk_hello_cardboard::VRConfigs  configs);
 
         ~NVApp();
 
@@ -31,6 +32,7 @@ namespace nv
         void DestroyGLThread();
 
     private:
+        ndk_hello_cardboard::VRConfigs vr_configs_;
         render::NVRenderer *renderer_;
 
         std::thread    gl_thread_;

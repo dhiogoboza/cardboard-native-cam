@@ -32,18 +32,18 @@ static const char glVertexShader[] =
         "}\n";
 
 // CARTOON
-static const char glFragmentShader[] =
-        "#extension GL_OES_EGL_image_external:require\n"
-        "precision mediump float;\n"
-        "varying vec2 texCoord;\n"
-        "uniform samplerExternalOES iChannel0;\n"
-        "void main() {\n"
-        "    gl_FragColor = texture2D(iChannel0, texCoord);\n"
-        "}\n";
+//static std::string glFragmentShader =
+//        "#extension GL_OES_EGL_image_external:require\n"
+//        "precision mediump float;\n"
+//        "varying vec2 texCoord;\n"
+//        "uniform samplerExternalOES iChannel0;\n"
+//        "void main() {\n"
+//        "    gl_FragColor = texture2D(iChannel0, texCoord);\n"
+//        "}\n";
 
 namespace nv::render {
 
-NVCameraBackground::NVCameraBackground(NVRenderer *renderer)
+NVCameraBackground::NVCameraBackground(NVRenderer *renderer, const ndk_hello_cardboard::VRConfigs& configs)
     : renderer_(renderer)
     , program_id_(-1)
 {
@@ -64,7 +64,7 @@ NVCameraBackground::NVCameraBackground(NVRenderer *renderer)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     //create program
-    program_id_ = renderer_->CreateProgram(glVertexShader, glFragmentShader);
+    program_id_ = renderer_->CreateProgram(glVertexShader, configs.shader.c_str());
     if (!program_id_) {
         LOG_ERROR("CameraBackground Could not create program.");
     }
@@ -74,8 +74,6 @@ NVCameraBackground::NVCameraBackground(NVRenderer *renderer)
     resolution_handle_ = glGetAttribLocation(program_id_, "iResolution");
     uv_handle_ = glGetAttribLocation(program_id_, "vTexCoord");
     texture_handle_ = glGetUniformLocation(program_id_, "iChannel0");
-
-    SetShader(glFragmentShader);
 }
 
 NVCameraBackground::~NVCameraBackground() = default;
@@ -108,13 +106,11 @@ void NVCameraBackground::AfterRender() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void NVCameraBackground::SetShader(const std::string &shader) {
-    if (program_id_ != -1) {
-        glDeleteProgram(program_id_);
-    }
+void NVCameraBackground::SetConfigs(const ndk_hello_cardboard::VRConfigs& configs) {
+    glDeleteProgram(program_id_);
 
-    //create program
-    program_id_ = renderer_->CreateProgram(glVertexShader, shader.c_str());
+    // create program
+    program_id_ = renderer_->CreateProgram(glVertexShader, configs.shader.c_str());
     if (!program_id_) {
         LOG_ERROR("CameraBackground Could not create program.");
     }

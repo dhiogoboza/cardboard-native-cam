@@ -1,20 +1,25 @@
 #include "nvapp.h"
+
+#include <utility>
 #include "nvrenderer.h"
 
 namespace nv
 {
-    NVApp::NVApp():
-            renderer_(0)
+    NVApp::NVApp(ndk_hello_cardboard::VRConfigs configs)
+        : renderer_(nullptr)
+        , vr_configs_(std::move(configs))
     {
-
     }
 
     NVApp::~NVApp() {
-
+        if (renderer_) {
+            delete renderer_;
+            renderer_ = nullptr;
+        }
     }
 
     void NVApp::Init() {
-        renderer_ = new render::NVRenderer();
+        renderer_ = new render::NVRenderer(vr_configs_);
         CreateGLThread();
     }
 
@@ -40,7 +45,6 @@ namespace nv
             delete renderer_;
             renderer_ = 0;
         }
-
     }
 
     render::NVRenderer *NVApp::Render()
@@ -62,6 +66,4 @@ namespace nv
                 gl_thread_.join();
         }
     }
-
-
 }

@@ -2,20 +2,23 @@
 
 #include <GLES3/gl32.h>
 #include <string>
+#include "util.h"
 
 namespace nv::render {
 
 class NVRenderer;
+struct VRConfigs;
+
 class NVCameraBackground {
 public:
-    NVCameraBackground(NVRenderer *renderer);
+    NVCameraBackground(NVRenderer *renderer, const ndk_hello_cardboard::VRConfigs& configs);
     ~NVCameraBackground();
 
     void BeforeRender();
     void Render();
     void AfterRender();
 
-    void SetShader(const std::string &shader);
+    void SetConfigs(const ndk_hello_cardboard::VRConfigs& configs);
 
 private:
     NVRenderer *renderer_;

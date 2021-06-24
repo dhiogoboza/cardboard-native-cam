@@ -7,7 +7,6 @@
     <item android:title="@string/choose_effect">
         <menu>
             <item
-                android:checked="true"
                 android:checkable="true"
                 android:id="@+id/choose_effect_disable"
                 android:title="@string/effect_disable" />

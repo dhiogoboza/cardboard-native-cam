@@ -17,7 +17,7 @@ namespace nv
         class NVRenderer
         {
         public:
-            NVRenderer();
+            NVRenderer(ndk_hello_cardboard::VRConfigs configs);
             ~NVRenderer();
 
             void Resume();
@@ -47,7 +47,7 @@ namespace nv
 
             NVCameraBackground *Camera();
 
-            void SetShader(const std::string &shader);
+            void SetConfigs(ndk_hello_cardboard::VRConfigs configs);
 
         protected:
             bool Initialise();
@@ -83,7 +83,7 @@ namespace nv
                 MSG_WINDOW_UPDATE,
                 MSG_WINDOW_DESTROY,
                 MSG_LOOP_EXIT,
-                MSG_UPDATE_SHADER
+                MSG_UPDATE_CONFIGS
             };
 
             enum RenderMessage msg_;
@@ -105,7 +105,7 @@ namespace nv
             int width_;
             int height_;
 
-            std::string shader_;
+            ndk_hello_cardboard::VRConfigs vr_configs_;
 
             GLuint surface_texture_id_;
             bool flip_background_;

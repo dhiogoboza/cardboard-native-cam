@@ -184,7 +184,7 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
     }
 
 
-    public void init(Activity activity) {
+    public void init(Activity activity, String shader) {
         mWeakActivity = new WeakReference<>(activity);
         mSurfaceHolder = this.getHolder();
         mSurfaceHolder.addCallback(this);
@@ -193,7 +193,7 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
         mIsSurfaceAvailable = false;
 
         //Create a App
-        nativeCreateApp(activity);
+        nativeCreateApp(activity, shader);
     }
 
     public void onResume() {
@@ -530,13 +530,11 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
         }
     }
 
-    public void setEffect(@RawRes int shaderId) {
+    public boolean setEffect(String shaderStr) {
         if (mPreviewBuilder != null) {
-            String shaderStr = getStringFromRaw(shaderId);
-
             if (TextUtils.isEmpty(shaderStr)) {
                 Log.e(TAG, "Empty shader");
-                return;
+                return false;
             }
 
             Log.d(TAG, "shaderStr: " + shaderStr);
@@ -549,29 +547,16 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
                 mCaptureSession.setRepeatingRequest(mPreviewBuilder.build(), mSessionCaptureCallback, mCamSessionHandler);
             } catch (CameraAccessException e) {
                 Log.e(TAG, "Error setting camera effect", e);
+                return false;
             }
+
+            return true;
         } else {
             Log.w(TAG, "Preview builder is null");
         }
+
+        return false;
     }
-
-    private String getStringFromRaw(@RawRes int shaderId) {
-        try (InputStream is = getContext().getResources().openRawResource(shaderId)) {
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            int i = is.read();
-            while (i != -1) {
-                byteArrayOutputStream.write(i);
-                i = is.read();
-            }
-
-            return byteArrayOutputStream.toString();
-        } catch (IOException e) {
-            Log.e(TAG, "Error reading raw effect", e);
-        }
-
-        return "";
-    }
-
 
     static class CompareSizesByArea implements Comparator<Size> {
         @Override
@@ -581,7 +566,7 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
     }
 
 
-    public static native void nativeCreateApp(Activity activity);
+    public static native void nativeCreateApp(Activity activity, String shader);
 
     public static native void nativeResumeApp();
 

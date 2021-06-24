@@ -100,11 +100,13 @@ std::string jstring2string(JNIEnv *env, jstring jStr) {
     return ret;
 }
 
-JNIEXPORT void JNICALL NATIVE_METHOD(nativeCreateApp)(JNIEnv* jenv, jobject obj, jobject context)
+JNIEXPORT void JNICALL NATIVE_METHOD(nativeCreateApp)(JNIEnv* jenv, jobject obj, jobject context, jstring shader)
 {
     Cardboard_initializeAndroid(g_vm, context);
 
-    kApp = new nv::NVApp();
+    ndk_hello_cardboard::VRConfigs configs(jstring2string(jenv, shader));
+
+    kApp = new nv::NVApp(configs);
     kApp->Init();
 }
 
@@ -150,7 +152,9 @@ JNIEXPORT void JNICALL NATIVE_METHOD(nativeSetSurface)(JNIEnv* jenv, jobject obj
 
 JNIEXPORT void JNICALL NATIVE_METHOD(nativeSetShader)(JNIEnv* jenv, jobject obj, jstring shader)
 {
-    kApp->Render()->SetShader(jstring2string(jenv, shader));
+    ndk_hello_cardboard::VRConfigs configs(jstring2string(jenv, shader));
+
+    kApp->Render()->SetConfigs(configs);
 }
 
 JNIEXPORT jobject JNICALL NATIVE_METHOD(nativeSurfaceTexture)(JNIEnv* jenv, jobject obj, jboolean flip)
