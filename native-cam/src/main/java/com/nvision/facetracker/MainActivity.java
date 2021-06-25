@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         PIXELIZE
     }
 
-    private final Map<Integer, Pair<Integer, EffectType>> mEffectsMap = new HashMap<Integer, Pair<Integer, EffectType>>(){{
+    private final Map<Integer, Pair<Integer, EffectType>> mEffectsMap = new HashMap<Integer, Pair<Integer, EffectType>>() {{
         put(R.id.choose_effect_disable, new Pair<>(R.raw.original, EffectType.NONE));
         put(R.id.choose_effect_cartoon, new Pair<>(R.raw.cartoon, EffectType.CARTOON));
         put(R.id.choose_effect_gaussian, new Pair<>(R.raw.gaussian, EffectType.GAUSSIAN));

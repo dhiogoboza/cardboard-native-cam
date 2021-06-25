@@ -1,7 +1,5 @@
 #include "nv_cam_background.h"
 
-#define LOG_TAG "NVCameraBackground"
-
 #include "nvrenderer.h"
 #include "logger.h"
 #include "util.h"
@@ -31,36 +29,29 @@ static const char glVertexShader[] =
         "    gl_Position = vec4 ( vPosition.x, vPosition.y, 0.0, 1.0 );\n"
         "}\n";
 
-// CARTOON
-//static std::string glFragmentShader =
-//        "#extension GL_OES_EGL_image_external:require\n"
-//        "precision mediump float;\n"
-//        "varying vec2 texCoord;\n"
-//        "uniform samplerExternalOES iChannel0;\n"
-//        "void main() {\n"
-//        "    gl_FragColor = texture2D(iChannel0, texCoord);\n"
-//        "}\n";
-
 namespace nv::render {
 
-NVCameraBackground::NVCameraBackground(NVRenderer *renderer, const ndk_hello_cardboard::VRConfigs& configs)
-    : renderer_(renderer)
-    , program_id_(-1)
-{
+NVCameraBackground::NVCameraBackground(NVRenderer *renderer, const ndk_hello_cardboard::VRConfigs &configs)
+        : renderer_(renderer)
+        , program_id_(-1)
+        , vertex_id_(-1)
+        , uv_id_(-1)
+        , index_id_(-1)
+    {
     //bind data to gpu
     glGenBuffers(1, &vertex_id_);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_id_);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*8, kTriangleVertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 8, kTriangleVertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, &uv_id_);
     glBindBuffer(GL_ARRAY_BUFFER, uv_id_);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*8, kUvs, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 8, kUvs, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glGenBuffers(1, &index_id_);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_id_);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort)*6, kIndices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort) * 6, kIndices, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     //create program
@@ -97,16 +88,19 @@ void NVCameraBackground::BeforeRender() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_id_);
 }
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
 void NVCameraBackground::Render() {
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 }
 
 void NVCameraBackground::AfterRender() {
     glBindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
+#pragma clang diagnostic pop
 
-void NVCameraBackground::SetConfigs(const ndk_hello_cardboard::VRConfigs& configs) {
+void NVCameraBackground::SetConfigs(const ndk_hello_cardboard::VRConfigs &configs) {
     glDeleteProgram(program_id_);
 
     // create program

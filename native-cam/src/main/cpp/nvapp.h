@@ -4,15 +4,15 @@
 #include <thread>
 #include "util.h"
 
-namespace nv
-{
-    namespace render
-    {
-        class NVRenderer;
-    }
-    class NVApp{
+namespace nv {
+
+namespace render {
+class NVRenderer;
+}
+
+class NVApp {
     public:
-        NVApp(ndk_hello_cardboard::VRConfigs  configs);
+        NVApp(ndk_hello_cardboard::VRConfigs configs);
 
         ~NVApp();
 
@@ -34,10 +34,9 @@ namespace nv
     private:
         ndk_hello_cardboard::VRConfigs vr_configs_;
         render::NVRenderer *renderer_;
+        std::thread gl_thread_;
+};
 
-        std::thread    gl_thread_;
-
-    };
 }
 
 

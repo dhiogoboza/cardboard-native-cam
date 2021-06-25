@@ -5,7 +5,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.graphics.ImageFormat;
 import android.graphics.Point;
 import android.graphics.SurfaceTexture;
@@ -14,7 +13,6 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
-import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
@@ -31,11 +29,6 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import com.nvision.face_tracker_android.R;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +39,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RawRes;
 import androidx.core.content.ContextCompat;
 
 
@@ -54,27 +46,21 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
 
     private static final String TAG = "CameraRenderView";
     private WeakReference<Activity> mWeakActivity;
-    private CameraManager mCamManager;
     private CameraDevice mCamera;
     private String mCameraId;
 
     private CaptureRequest.Builder mPreviewBuilder;
     private CameraCaptureSession mCaptureSession;
-    private CaptureRequest.Builder mCaptureRequestBuilder;
 
     private ImageReader mImageReader;
 
     boolean mIsSurfaceAvailable;
-    private SurfaceHolder mSurfaceHolder;
     private Surface mSurface;
     private SurfaceTexture mSurfaceTexture;
-    private volatile Handler    //Create a handler from the ui thread
-            mUIHandler = new Handler();
-    private Semaphore mCameraOpenCloseLock = new Semaphore(1);
+    private final Semaphore mCameraOpenCloseLock = new Semaphore(1);
     private HandlerThread mCamSessionThread;
     private Handler mCamSessionHandler;
 
-    private int mSensorOrientation;
     private static final int MAX_PREVIEW_WIDTH = 1920;
     private static final int MAX_PREVIEW_HEIGHT = 1080;
 
@@ -83,11 +69,9 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
 
     //public static int IMAGE_WIDTH = 640, IMAGE_HEIGHT = 480;
     public static int IMAGE_WIDTH = 1280, IMAGE_HEIGHT = 720;
-    public static final String CAMERA_FACE_BACK = "" + CameraCharacteristics.LENS_FACING_BACK;
-    public static final String CAMERA_FACE_FRONT = "" + CameraCharacteristics.LENS_FACING_FRONT;
 
     //CameraDevice StateCallback
-    private CameraDevice.StateCallback mCameraDeviceCallback = new CameraDevice.StateCallback() {
+    private final CameraDevice.StateCallback mCameraDeviceCallback = new CameraDevice.StateCallback() {
         @Override
         public void onOpened(@NonNull CameraDevice cameraDevice) {
             mCameraOpenCloseLock.release();
@@ -114,7 +98,7 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
     };
 
     // Session State Callback
-    private CameraCaptureSession.StateCallback mSessionStateCallback = new CameraCaptureSession.StateCallback() {
+    private final CameraCaptureSession.StateCallback mSessionStateCallback = new CameraCaptureSession.StateCallback() {
         @Override
         public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
             if (null == mCamera) return;
@@ -141,7 +125,7 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
     };
 
 
-    private CameraCaptureSession.CaptureCallback mSessionCaptureCallback = new CameraCaptureSession.CaptureCallback() {
+    private final CameraCaptureSession.CaptureCallback mSessionCaptureCallback = new CameraCaptureSession.CaptureCallback() {
         @Override
         public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
             //Log.i("CameraRenderView","CameraCaptureSession Capture Completed");
@@ -151,21 +135,14 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
         public void onCaptureProgressed(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull CaptureResult partialResult) {
 
         }
-
-        private void process(CaptureRequest result) {
-            //Nothing
-        }
     };
 
-    private long last_time = System.currentTimeMillis();
     //This is a callback object for ImageReader OnImageAvailble will be called when a still image is ready for process
     private final ImageReader.OnImageAvailableListener mOnImageAvailableListener = new ImageReader.OnImageAvailableListener() {
         @Override
         public void onImageAvailable(ImageReader imageReader) {
-            long cur_time = System.currentTimeMillis();
             //Log.i("CameraRenderView", "CameraRenderView OnImageAvailable Since last time " + (cur_time - last_time));
             Image image = imageReader.acquireNextImage();
-            last_time = cur_time;
             image.close();
 
         }
@@ -186,9 +163,9 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
 
     public void init(Activity activity, String shader) {
         mWeakActivity = new WeakReference<>(activity);
-        mSurfaceHolder = this.getHolder();
-        mSurfaceHolder.addCallback(this);
-        mSurfaceHolder.setKeepScreenOn(true);
+        SurfaceHolder surfaceHolder = this.getHolder();
+        surfaceHolder.addCallback(this);
+        surfaceHolder.setKeepScreenOn(true);
 
         mIsSurfaceAvailable = false;
 
@@ -267,19 +244,10 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
         }
     }
 
-    private boolean isSurfaceAvailable() {
-        return mSurfaceHolder != null && mIsSurfaceAvailable;
-    }
-
     private void createCameraPreviewSession() throws CameraAccessException {
-        try {
-
-            mSurface = getPreviewSurface(mPreviewSize);
-            mPreviewBuilder = mCamera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW); //This must called before createCaptureSession
-            mCamera.createCaptureSession(Arrays.asList(mSurface, mImageReader.getSurface()), mSessionStateCallback, null);
-        } catch (CameraAccessException e) {
-            e.printStackTrace();
-        }
+        mSurface = getPreviewSurface(mPreviewSize);
+        mPreviewBuilder = mCamera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW); //This must called before createCaptureSession
+        mCamera.createCaptureSession(Arrays.asList(mSurface, mImageReader.getSurface()), mSessionStateCallback, null);
     }
 
     private void startPreview(CameraCaptureSession session) throws CameraAccessException {
@@ -289,19 +257,24 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
         session.setRepeatingRequest(mPreviewBuilder.build(), mSessionCaptureCallback, mCamSessionHandler);
     }
 
+    @SuppressWarnings("unused")
     private void configureCamera(int width, int height) {
-        //Assume it is a face back camera
-        mCameraId = CAMERA_FACE_BACK;
+        // FIXME: Use width and height
+
+        // Assume it is a face back camera
+        mCameraId = "" + CameraCharacteristics.LENS_FACING_BACK;
 
         // Get back camera
         try {
-            CameraManager cameraManager = (CameraManager) getActivity().getSystemService(Context.CAMERA_SERVICE);
-            for (String id : cameraManager.getCameraIdList()) {
-                CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(id);
-                if (characteristics.get(CameraCharacteristics.LENS_FACING)
-                        == CameraCharacteristics.LENS_FACING_BACK) {
-                    mCameraId = id;
-                    break;
+            if (getActivity() != null) {
+                CameraManager cameraManager = (CameraManager) getActivity().getSystemService(Context.CAMERA_SERVICE);
+                for (String id : cameraManager.getCameraIdList()) {
+                    CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(id);
+                    if (characteristics.get(CameraCharacteristics.LENS_FACING)
+                            == CameraCharacteristics.LENS_FACING_BACK) {
+                        mCameraId = id;
+                        break;
+                    }
                 }
             }
         } catch (CameraAccessException e) {
@@ -313,6 +286,9 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
     }
 
     private void openCamera() {
+        if (getActivity() == null)
+            return;
+
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
             PermissionHelper.requestCameraPermission(getActivity(), true);
@@ -320,7 +296,7 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
         }
 
         ///Prepare for camera
-        mCamManager = (CameraManager) getActivity().getSystemService(Context.CAMERA_SERVICE);
+        CameraManager cameraManager = (CameraManager) getActivity().getSystemService(Context.CAMERA_SERVICE);
         try {
             if (!mCameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
                 throw new RuntimeException("Time out waiting to lock camera opening.");
@@ -330,7 +306,7 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
         }
 
         try {
-            mCamManager.openCamera(mCameraId, mCameraDeviceCallback, mCamSessionHandler);
+            cameraManager.openCamera(mCameraId, mCameraDeviceCallback, mCamSessionHandler);
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
@@ -375,6 +351,9 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
 
     private void setupCameraOutputs(int width, int height) {
         Activity activity = getActivity();
+        if (activity == null)
+            return;
+
         CameraManager manager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
         try {
 
@@ -383,30 +362,6 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
             StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
 
             Size largest = Collections.max(Arrays.asList(map.getOutputSizes(ImageFormat.YUV_420_888)), new CompareSizesByArea());
-
-            //Find out if we need to swap dimension to get the preview size relative to sensor coordinate
-            int displayRotation = activity.getWindowManager().getDefaultDisplay().getRotation();
-            mSensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
-            boolean swappedDimensions = false;
-
-            //Log.i("CameraRenderView", "CameraRenderView displayRotation");
-
-            switch (displayRotation) {
-                case Surface.ROTATION_0:
-                case Surface.ROTATION_180:
-                    if (mSensorOrientation == 90 || mSensorOrientation == 270) {
-                        swappedDimensions = true;
-                    }
-                    break;
-                case Surface.ROTATION_90:
-                case Surface.ROTATION_270:
-                    if (mSensorOrientation == 0 || mSensorOrientation == 180) {
-                        swappedDimensions = true;
-                    }
-                    break;
-                default:
-                    Log.e("CameraRenderView", "Display rotation is invalid: " + displayRotation);
-            }
 
             //Log.i("CameraRenderView", "CameraRenderView displaySize");
             Point displaySize = new Point();
@@ -418,16 +373,10 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
 
             if (rotatedPreviewHeight > rotatedPreviewWidth) {
                 int aux = rotatedPreviewHeight;
+                //noinspection SuspiciousNameCombination
                 rotatedPreviewHeight = rotatedPreviewWidth;
                 rotatedPreviewWidth = aux;
             }
-
-//            if (swappedDimensions) {
-//                rotatedPreviewWidth = height;
-//                rotatedPreviewHeight = width;
-//                maxPreviewWidth = displaySize.y;
-//                maxPreviewHeight = displaySize.x;
-//            }
 
             if (maxPreviewWidth > MAX_PREVIEW_WIDTH) {
                 maxPreviewWidth = MAX_PREVIEW_WIDTH;
@@ -444,11 +393,6 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
             mPreviewSize = chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class),
                     rotatedPreviewWidth, rotatedPreviewHeight, maxPreviewWidth,
                     maxPreviewHeight, largest);
-
-            // We fit the aspect ratio of TextureView to the size of preview we picked.
-            int orientation = getResources().getConfiguration().orientation;
-
-
         } catch (CameraAccessException e) {
             e.printStackTrace();
         } catch (NullPointerException e) {

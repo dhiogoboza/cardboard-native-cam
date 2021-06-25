@@ -57,7 +57,7 @@ class PermissionHelper {
         } else {
             // No explanation needed, we can request the permission.
 
-            String permissions[] = requestWritePermission ? new String[]{Manifest.permission.CAMERA,
+            String[] permissions = requestWritePermission ? new String[]{Manifest.permission.CAMERA,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE} : new String[]{Manifest.permission.CAMERA};
             ActivityCompat.requestPermissions(activity, permissions, RC_PERMISSION_REQUEST);
         }
@@ -73,7 +73,7 @@ class PermissionHelper {
         } else {
             // No explanation needed, we can request the permission.
 
-            String permissions[] = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            String[] permissions = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
             ActivityCompat.requestPermissions(activity, permissions, RC_PERMISSION_REQUEST);
         }

@@ -26,7 +26,7 @@ namespace nv
 
             void Destroy();
 
-            void CreateSurface(jobject surface);
+            void CreateSurface();
 
             void SetWindow(ANativeWindow* window);
 
