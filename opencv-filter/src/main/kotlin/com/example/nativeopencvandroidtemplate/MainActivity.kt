@@ -9,11 +9,15 @@ import android.util.Log
 import android.view.SurfaceView
 import android.view.WindowManager
 import android.widget.Toast
+import android.widget.LinearLayout
 import org.opencv.android.BaseLoaderCallback
 import org.opencv.android.CameraBridgeViewBase
 import org.opencv.android.LoaderCallbackInterface
 import org.opencv.android.OpenCVLoader
 import org.opencv.core.Mat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.WindowInsetsCompat
 
 class MainActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
 
@@ -56,6 +60,16 @@ class MainActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2 {
         mOpenCvCameraView!!.visibility = SurfaceView.VISIBLE
 
         mOpenCvCameraView!!.setCvCameraViewListener(this)
+
+        hideSystemUI()
+    }
+
+    private fun hideSystemUI() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        WindowInsetsControllerCompat(window, findViewById<LinearLayout>(R.id.main_container)).let { controller ->
+            controller.hide(WindowInsetsCompat.Type.systemBars())
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
     }
 
     override fun onRequestPermissionsResult(
