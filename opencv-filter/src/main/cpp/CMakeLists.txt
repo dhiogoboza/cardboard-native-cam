@@ -5,6 +5,8 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 
+set(libs_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../../libraries)
+
 include_directories(${OpenCV_DIR}/jni/include)
 add_library( lib_opencv SHARED IMPORTED )
 set_target_properties(lib_opencv PROPERTIES IMPORTED_LOCATION ${OpenCV_DIR}/libs/${ANDROID_ABI}/libopencv_java4.so)
@@ -14,14 +16,19 @@ set_target_properties(lib_opencv PROPERTIES IMPORTED_LOCATION ${OpenCV_DIR}/libs
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
 
+file(GLOB native_srcs "*.cpp")
+
 add_library( # Sets the name of the library.
         native-lib
 
         # Sets the library as a shared library.
         SHARED
 
-        # Provides a relative path to your source file(s).
-        native-lib.cpp)
+        # Source files.
+        ${native_srcs})
+
+# Google Cardboard includes
+target_include_directories(native-lib PRIVATE ${libs_dir})
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
@@ -47,4 +54,7 @@ target_link_libraries( # Specifies the target library.
 
         # Links the target library to the log library
         # included in the NDK.
-        ${log-lib})
+        ${log-lib}
+
+        # Google Cardboard
+        ${libs_dir}/jni/${ANDROID_ABI}/libcardboard_api.so)
