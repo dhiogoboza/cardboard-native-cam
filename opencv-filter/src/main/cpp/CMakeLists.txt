@@ -16,8 +16,6 @@ set_target_properties(lib_opencv PROPERTIES IMPORTED_LOCATION ${OpenCV_DIR}/libs
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
 
-file(GLOB native_srcs "*.cpp")
-
 add_library( # Sets the name of the library.
         native-lib
 
@@ -25,7 +23,10 @@ add_library( # Sets the name of the library.
         SHARED
 
         # Source files.
-        ${native_srcs})
+        util.cpp
+        jni-bridge.cpp
+        native-lib.cpp
+        CardboardApp.cpp)
 
 # Google Cardboard includes
 target_include_directories(native-lib PRIVATE ${libs_dir})
@@ -50,7 +51,12 @@ find_library( # Sets the name of the path variable.
 target_link_libraries( # Specifies the target library.
         native-lib
 
+        android
+
         lib_opencv
+
+        EGL
+        GLESv3
 
         # Links the target library to the log library
         # included in the NDK.
