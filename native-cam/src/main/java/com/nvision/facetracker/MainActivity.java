@@ -17,7 +17,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.PopupMenu;
 
-import com.nvision.face_tracker_android.R;
+import com.db.cardboardcam.R;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -238,7 +238,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         }
 
         Pair<Integer, EffectType> effect = mEffectsMap.get(itemId);
-        if (mCameraView.setEffect(getStringFromRaw(effect.first))) {
+        if (effect != null && mCameraView.setEffect(getStringFromRaw(effect.first))) {
             ConfigUtils.saveCurrentEffect(this, effect.second);
         }
 

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">face_tracker_android</string>
+    <string name="app_name">CardboardCAM</string>
     <string name="choose_viewer">Switch Cardboard viewer</string>
     <string name="no">No</string>
     <string name="yes">Yes</string>
