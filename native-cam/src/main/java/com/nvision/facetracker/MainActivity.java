@@ -49,15 +49,21 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         CARTOON,
         GAUSSIAN,
         NOSTALGIA,
-        PIXELIZE
+        PIXELIZE,
+        BLACK_AND_WHITE,
+        GRAY,
+        NEGATIVE
     }
 
     private final Map<Integer, Pair<Integer, EffectType>> mEffectsMap = new HashMap<Integer, Pair<Integer, EffectType>>() {{
         put(R.id.choose_effect_disable, new Pair<>(R.raw.original, EffectType.NONE));
         put(R.id.choose_effect_cartoon, new Pair<>(R.raw.cartoon, EffectType.CARTOON));
-        put(R.id.choose_effect_gaussian, new Pair<>(R.raw.gaussian, EffectType.GAUSSIAN));
+        //put(R.id.choose_effect_gaussian, new Pair<>(R.raw.gaussian, EffectType.GAUSSIAN));
         put(R.id.choose_effect_nostalgia, new Pair<>(R.raw.nostalgia, EffectType.NOSTALGIA));
-        put(R.id.choose_effect_pixelize, new Pair<>(R.raw.pixelize, EffectType.PIXELIZE));
+        //put(R.id.choose_effect_pixelize, new Pair<>(R.raw.pixelize, EffectType.PIXELIZE));
+        put(R.id.choose_effect_black_and_white, new Pair<>(R.raw.black_and_white, EffectType.BLACK_AND_WHITE));
+        put(R.id.choose_effect_gray, new Pair<>(R.raw.gray, EffectType.GRAY));
+        put(R.id.choose_effect_negative, new Pair<>(R.raw.negative, EffectType.NEGATIVE));
     }};
 
     @SuppressLint("ClickableViewAccessibility")

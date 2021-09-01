@@ -24,8 +24,8 @@
 #include <opencv2/core/core.hpp>
 #include <vector>
 
-//#include <GLES2/gl2.h>
-#include <GLES3/gl32.h>
+#include <GLES2/gl2.h>
+//#include <GLES3/gl32.h>
 
 #define LOG_TAG "HelloCardboardApp"
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
@@ -43,6 +43,8 @@ struct VRConfigs {
     VRConfigs(const std::string &_shader)
             : shader(_shader)
     {
+      screenWidth = 1280;
+      screenHeight = 720;
     }
 
     std::string shader;

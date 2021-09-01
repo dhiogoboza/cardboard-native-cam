@@ -28,7 +28,7 @@
 #include <sstream>
 #include <string>
 
-#include <GLES3/gl32.h>
+#include "util.h"
 
 namespace ndk_hello_cardboard {
 

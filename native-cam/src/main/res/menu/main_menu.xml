@@ -16,20 +16,35 @@
                 android:id="@+id/choose_effect_cartoon"
                 android:title="@string/effect_cartoon" />
 
-            <item
-                android:checkable="true"
-                android:id="@+id/choose_effect_gaussian"
-                android:title="@string/effect_gaussian" />
+<!--            <item-->
+<!--                android:checkable="true"-->
+<!--                android:id="@+id/choose_effect_gaussian"-->
+<!--                android:title="@string/effect_gaussian" />-->
 
             <item
                 android:checkable="true"
                 android:id="@+id/choose_effect_nostalgia"
                 android:title="@string/effect_nostalgia" />
 
+<!--            <item-->
+<!--                android:checkable="true"-->
+<!--                android:id="@+id/choose_effect_pixelize"-->
+<!--                android:title="@string/effect_pixelize" />-->
+
             <item
                 android:checkable="true"
-                android:id="@+id/choose_effect_pixelize"
-                android:title="@string/effect_pixelize" />
+                android:id="@+id/choose_effect_black_and_white"
+                android:title="@string/effect_black_and_white" />
+
+            <item
+                android:checkable="true"
+                android:id="@+id/choose_effect_gray"
+                android:title="@string/effect_gray" />
+
+            <item
+                android:checkable="true"
+                android:id="@+id/choose_effect_negative"
+                android:title="@string/effect_negative" />
         </menu>
     </item>
 </menu>

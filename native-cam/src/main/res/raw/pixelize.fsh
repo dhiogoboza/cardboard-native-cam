@@ -1,6 +1,6 @@
 #extension GL_OES_EGL_image_external:require
 
-precision mediump float;
+precision highp float;
 uniform vec3 iResolution;
 uniform samplerExternalOES iChannel0;
 varying vec2 texCoord;

@@ -61,8 +61,8 @@ public class CameraRenderView extends SurfaceView implements SurfaceHolder.Callb
     private HandlerThread mCamSessionThread;
     private Handler mCamSessionHandler;
 
-    private static final int MAX_PREVIEW_WIDTH = 1920;
-    private static final int MAX_PREVIEW_HEIGHT = 1080;
+    private static final int MAX_PREVIEW_WIDTH = 1280;
+    private static final int MAX_PREVIEW_HEIGHT = 720;
 
     private Size mPreviewSize;
     private int mWidth, mHeight;
